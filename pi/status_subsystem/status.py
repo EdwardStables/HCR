@@ -33,8 +33,6 @@ class interface(Cmd):
         'List all active subsystems and their last reported status.'
         self.op.print_status()
     
-
-
 class operator:
     """Performs the operations specified by the interface, should be passed a subsystem inherited object"""
     def __init__(self, subsystem :status):
