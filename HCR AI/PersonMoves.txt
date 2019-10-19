@@ -1,0 +1,5 @@
+# PersonMoves.txt
+person appears
+person does something robot not programmed to do
+person asks question
+person leaves
