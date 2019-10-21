@@ -18,11 +18,11 @@ const float pi = 3.14159,
             //z_home = default z height with servo arms horizontal
             z_home = 4.25,
             //servo_min = lower limit for servo arm angle
-            servo_min,
+            servo_min = 700,
             //servo_max = upper limit for servo arm angle
-            servo_max,
+            servo_max = 2300,
             //servo_mult = multiplier to convert to milliseconds
-            servo_mult,
+            servo_mult = 1,
             //p = location of servo rotation points in base frame [x/y][1-6]
             p[2][6] = {{
                 PD * cos(pi / 6 + theta_p), PD * cos(pi / 6 - theta_p), PD * cos(-(pi / 2 - theta_p)),
@@ -66,7 +66,7 @@ void setup()
 void loop()
 {
   
-  static float pe[6] = {0, 0, 0, radians(10), radians(0), radians(0)}, 
+  static float pe[6] = {0, 0, 0, radians(0), radians(0), radians(0)}, 
                theta_a[6], 
                servo_pos[6],
                q[3][6], 
@@ -78,7 +78,7 @@ void loop()
     heave, pitch, roll, yaw)
     theta_a = angle of the servo arm
     servo_pos = value written to each servo
-    q = position of lower mounting point of connecting link [x,y,x][1-6]
+    q = position of lower mounting point of connecting link [x,y,z][1-6]
     r = position of upper mounting point of connecting link
     dl = dierence between x,y,z coordinates of q and r
     dl2 = distance between q and r
@@ -109,12 +109,12 @@ void loop()
     servo[i].writeMicroseconds(servo_pos[i]);
   }
 
-  pe[0] = pe[2] + 0.1;
+  pe[5] = pe[5] + 0.1;
 
-  Serial.println("Theta A:");
+  Serial.println("pe:");
   for(int i = 0; i < 6; i++)
   {
-      Serial.print(theta_a[i], DEC);
+      Serial.print(pe[i], DEC);
       Serial.print("\t");
   }
   Serial.println();
@@ -127,19 +127,14 @@ void loop()
   }
   Serial.println();
 
-  Serial.println("r:");
+
+  Serial.println("servo pos:");
   for(int i = 0; i < 6; i++)
   {
-      Serial.print(r[1][i], DEC);
-      Serial.print(",");
-      Serial.print(r[2][i], DEC);
-      Serial.print(",");
-      Serial.print(r[3][i], DEC);
-      Serial.print(",");
+      Serial.print(servo_pos[i], DEC);
       Serial.print("\t");
   }
   Serial.println();
-  
 
-  delay(50);
+  delay(5);
 }
