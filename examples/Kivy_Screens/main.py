@@ -3,7 +3,6 @@ from kivy.uix.widget import Widget
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 
-Builder.unload_file('robot.kv')
 Builder.load_file('robot.kv')
 
 class EyeScreen(Screen):
