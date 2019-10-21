@@ -1,0 +1,22 @@
+#:kivy 1.11.1
+
+<EyeScreen>:
+    BoxLayout:
+        Button:
+            text: 'Goto Menu'
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'menus'
+        Button:
+            text: 'Quit'
+
+
+<MenuScreen>:
+    BoxLayout:
+        Button:
+            text: 'Goto Eyes'
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'eyes'
+        Button:
+            text: 'Quit'
