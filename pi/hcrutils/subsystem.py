@@ -58,4 +58,7 @@ class subsystem:
         p = mp.Process(target=_run, kwargs=kwargs)
         p.start()
         self.status = "Started"
-        return pipe_b, p
+        return pipe_b, p, self.ID
+
+    def close(self):
+        assert False

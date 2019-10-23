@@ -11,8 +11,8 @@ class status(subsystem):
     web display to show the status (and maybe control)
     """
 
-    def __init__(self, ID):
-        super.__init__(ID, "greedy")
+    def __init__(self):
+        super.__init__("status", "greedy")
 
     def _run(self, **kwargs):
         operator_class = operator(self)
