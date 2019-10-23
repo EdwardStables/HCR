@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
+from kivy.uix.image import Image
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 
@@ -15,7 +16,7 @@ sm = ScreenManager()
 sm.add_widget(EyeScreen(name='eyes'))
 sm.add_widget(MenuScreen(name='menus'))
 
-sm.current = 'menus'
+#sm.current = 'menus'
 
 class RobotApp(App):
     def build(self):
