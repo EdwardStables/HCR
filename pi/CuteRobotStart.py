@@ -19,15 +19,17 @@ def main(args):
     for ss in subsystems:
         assert isinstance(ss, subsystem)
 
-    pipes = {} 
-    subprocesses = {}
+    processes = {}
 
     for ss in subsystems:
         p, s, i = ss.start() 
-        pipes[i] = p 
-        subprocesses[i] = s 
+        processes[i] = {
+            "pipe" : p,
+            "process" : s,
+            "policy" : ss.policy,
+        }
 
-    mediator = mediator(pipes, subprocesses)
+    mediator = mediator(processes)
     mediator.start()
 
     for ss in subsystems:
