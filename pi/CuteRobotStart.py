@@ -8,11 +8,10 @@ from hcrutils.message import mediator
 #Import each subsystem that needs to be launched
 from status_subsystem.status import status
 
-def main(args):
-
+def main():
     #Define each subsystem
     subsystems = [
-        status_process = status(),
+        status(),
     ]
     
     #Only launch if all are of the correct type
@@ -29,8 +28,8 @@ def main(args):
             "policy" : ss.policy,
         }
 
-    mediator = mediator(processes)
-    mediator.start()
+    process_mediator = mediator(processes)
+    process_mediator.start()
 
     for ss in subsystems:
         ss.close()
@@ -39,5 +38,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    args = arg_parser(sys.argv[1:])
-    main(args)
+    main()

@@ -12,7 +12,7 @@ class status(subsystem):
     """
 
     def __init__(self):
-        super.__init__("status", "greedy")
+        super().__init__("status", "greedy")
 
     def _run(self, **kwargs):
         operator_class = operator(self)
@@ -27,7 +27,7 @@ class interface(Cmd):
     def __init__(self, operator):
         self.op = operator
         self.op.set_status = "Executing CLI"
-        super.__init__()
+        super().__init__()
 
     def do_status(self):
         'List all active subsystems and their last reported status.'

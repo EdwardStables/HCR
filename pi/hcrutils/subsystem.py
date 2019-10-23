@@ -22,7 +22,7 @@ class subsystem:
         self.policy = policy
         self.pipe = None
         self.status = "Starting"
-        self.messages
+        self.messages = {}
 
     def get_status(self):
         return "{} {}".format(self.ID, self.status)
@@ -31,7 +31,7 @@ class subsystem:
         """Manages retrieving data from the queue. If the message with the desired response is not
         already stored in self.messages, the pipe will be polled for up to a second to find the message.
         Extra messages will be stored in self.messages"""
-        while poll(1) or ref not in messages::
+        while poll(1) or ref not in messages:
             msg = self.pipe.recv()
             self.messages[msg.ref] = msg
 
@@ -55,7 +55,7 @@ class subsystem:
         """
         pipe_a, pipe_b = mp.Pipe() 
         self.pipe = pipe_a
-        p = mp.Process(target=_run, kwargs=kwargs)
+        p = mp.Process(target=self._run, kwargs=kwargs)
         p.start()
         self.status = "Started"
         return pipe_b, p, self.ID
