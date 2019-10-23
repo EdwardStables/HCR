@@ -3,24 +3,35 @@
 <EyeScreen>:
     FloatLayout:
         Image:
-            source: 'eyestest.png'
+            id: screenimage
+            source: 'eyestest2.png'
             size_hint: (1,1)
             pos: (0,0)
         Button:
+            id: menubutton
             text: 'Go to Menu'
             on_press:
                 root.manager.transition.direction = 'left'
                 root.manager.current = 'menus'
             size_hint: (.1,.1)
             pos_hint:{"right":1,"top":1}
-
+        TextInput:
+            id: moodinput
+            input_filter: 'float'
+            text: '1.0'
+            on_text: root.update_mood()
+            size_hint: (0.1,1)
 
 <MenuScreen>:
     BoxLayout:
         Button:
+            id: eyebutton
             text: 'Back to Eyes'
             on_press:
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'eyes'
         Button:
-            text: 'Quit'
+            id: randombutton
+            text: 'Some Option'
+        
+            
