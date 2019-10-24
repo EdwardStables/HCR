@@ -1,6 +1,7 @@
 from hcrutils.subsystem import subsystem
 from hcrutils.message import messagebody
 from cmd import Cmd
+import sys
 
 class status(subsystem):
     """Provides an interface to show the current status of the code.
@@ -15,13 +16,14 @@ class status(subsystem):
         super().__init__("status", "greedy")
 
     def _run(self):
+        sys.stdin = open(0)
         operator_class = operator(self)
-        interface_class = interface(operator_class)
-        
+        interface(operator_class).cmdloop()         
+
 
 class interface(Cmd):
     """Supplies a commandline interface for the program"""
-    intro = "HCR Cute Robot project commandline interface :)"
+    intro = "HCR Cute Robot project commandline interface :) \n"
     prompt = '> '
 
     def __init__(self, operator):
@@ -29,9 +31,13 @@ class interface(Cmd):
         self.op.set_status = "Executing CLI"
         super().__init__()
 
-    def do_status(self):
+    def do_status(self, arg):
         'List all active subsystems and their last reported status.'
         self.op.print_status()
+
+    def do_EOF(self, arg):
+        input()
+        #print("EOF:", arg)
     
 class operator:
     """Performs the operations specified by the interface, should be passed a subsystem inherited object"""

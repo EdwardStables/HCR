@@ -31,7 +31,7 @@ class subsystem:
         """Manages retrieving data from the queue. If the message with the desired response is not
         already stored in self.messages, the pipe will be polled for up to a second to find the message.
         Extra messages will be stored in self.messages"""
-        while poll(1) or ref not in messages:
+        while self.pipe.poll or ref not in messages:
             msg = self.pipe.recv()
             self.messages[msg.ref] = msg
 

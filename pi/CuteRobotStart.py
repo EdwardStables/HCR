@@ -13,8 +13,6 @@ def main():
     #Define each subsystem
     subsystems = [
         status(),
-        test("test1", "id_only"),
-        test("test2", "id_only")
     ]
     
     #Only launch if all are of the correct type
