@@ -42,7 +42,7 @@ class mediator:
     def send_messages(self):
         while len(self.messageQueue) > 0:
             message = self.messageQueue.pop()
-            handle_message(message)
+            self.handle_message(message)
 
     def handle_message(self, message):
         target = message.target_id
@@ -51,7 +51,7 @@ class mediator:
             handle_self_message(message)
 
         elif target in self.processes:
-            processes[target]['pipe'].send(message)
+            self.processes[target]['pipe'].send(message)
 
         elif 'status' in self.processes:
             address_error = messagebody(

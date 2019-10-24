@@ -7,11 +7,14 @@ from hcrutils.message import mediator
 
 #Import each subsystem that needs to be launched
 from status_subsystem.status import status
+from test_subsystem.test import test
 
 def main():
     #Define each subsystem
     subsystems = [
         status(),
+        test("test1", "id_only"),
+        test("test2", "id_only")
     ]
     
     #Only launch if all are of the correct type

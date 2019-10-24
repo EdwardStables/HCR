@@ -14,7 +14,7 @@ class status(subsystem):
     def __init__(self):
         super().__init__("status", "greedy")
 
-    def _run(self, **kwargs):
+    def _run(self):
         operator_class = operator(self)
         interface_class = interface(operator_class)
         
