@@ -35,7 +35,7 @@ class interface(Cmd):
     
 class operator:
     """Performs the operations specified by the interface, should be passed a subsystem inherited object"""
-    def __init__(self, subsystem :status):
+    def __init__(self, subsystem: status):
         self.subsystem = subsystem
         self.ID = self.subsystem.ID
         self.pipe = self.subsystem.pipe
