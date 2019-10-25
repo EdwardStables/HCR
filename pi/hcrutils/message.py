@@ -51,6 +51,10 @@ class mediator:
         if target == "mediator":
             self.handle_self_message(message)
 
+        elif target == "all":
+            for p, v in self.processes.items():
+                v["pipe"].send(message)
+
         elif target in self.processes:
             self.processes[target]["pipe"].send(message)
 

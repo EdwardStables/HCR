@@ -20,7 +20,6 @@ class status(subsystem):
         operator_class = operator(self)
         interface(operator_class).cmdloop()         
 
-
 class interface(Cmd):
     """Supplies a commandline interface for the program"""
     intro = "HCR Cute Robot project commandline interface :) \n"
@@ -32,12 +31,13 @@ class interface(Cmd):
         super().__init__()
 
     def do_status(self, arg):
-        'List all active subsystems and their last reported status.'
+        """List all active subsystems and their last reported status."""
         self.op.print_status()
 
-    def do_EOF(self, arg):
-        input()
-        #print("EOF:", arg)
+    def do_stop(self, arg):
+        """Safely shut down all subsystems and exit"""
+        self.op.stop(arg)
+        
     
 class operator:
     """Performs the operations specified by the interface, should be passed a subsystem inherited object"""
@@ -52,6 +52,7 @@ class operator:
         self.subsystem.status = status
 
     def print_status(self):
+        """Send a request for all subsystem status values to mediator"""
         get_status_msg = messagebody("mediator", self.ID, None, "get_all_status")
         self.pipe.send(get_status_msg)
 
@@ -60,6 +61,15 @@ class operator:
 
         print(msg)
 
-
+    def stop(self, arg):
+        """Send an exit signal to all subsystems."""
+        msg = messagebody(None, self.ID, None, "stop")
+        if arg == '':
+            msg.target_id = "all"
+            self.pipe.send(msg)
+        else:
+            for s in subsystems:
+                msg.target_id = s
+                self.pipe.send(msg)
 
 

@@ -32,6 +32,9 @@ class subsystem:
             msg = self.pipe.recv()
             self.messages[msg.ref] = msg
 
+        if any(r == 'stop' for r in self.messages):
+            self.stop()
+
         return self.messages.pop(ref)
 
     def set_status(self, status):
@@ -65,5 +68,5 @@ class subsystem:
         self.status = "Started"
         return pipe_b, p, self.ID
 
-    def close(self):
-        assert False
+    def stop(self):
+        print("Stop:", self.ID)
