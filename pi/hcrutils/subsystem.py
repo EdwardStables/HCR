@@ -24,18 +24,23 @@ class subsystem:
         self.status = "Starting"
         self.messages = {}
 
-    def get_status(self):
-        return "{} {}".format(self.ID, self.status)
-
     def pipe_reciever(self, ref):
         """Manages retrieving data from the queue. If the message with the desired response is not
         already stored in self.messages, the pipe will be polled for up to a second to find the message.
         Extra messages will be stored in self.messages"""
-        while self.pipe.poll or ref not in messages:
+        while self.pipe.poll(1):
             msg = self.pipe.recv()
             self.messages[msg.ref] = msg
 
-        return messages.pop(ref)
+        return self.messages.pop(ref)
+
+    def set_status(self, status):
+        print("Status for {} changed. New status is {}".format(self.ID, status))
+        self.status = status
+
+    def get_status(self):
+        print("Status for {} requested. Status is {}".format(self.ID, self.status))
+        return self.status
 
     def _run(self, **kwargs):
         """Launch all subsystem functionality from this function.

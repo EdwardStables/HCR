@@ -28,7 +28,7 @@ class interface(Cmd):
 
     def __init__(self, operator):
         self.op = operator
-        self.op.set_status = "Executing CLI"
+        self.op.set_status("Executing CLI")
         super().__init__()
 
     def do_status(self, arg):
@@ -45,16 +45,20 @@ class operator:
         self.subsystem = subsystem
         self.ID = self.subsystem.ID
         self.pipe = self.subsystem.pipe
-        self.status = self.subsystem.status
         self.reciever = self.subsystem.pipe_reciever
         self.messages = {}
 
+    def set_status(self, status):
+        self.subsystem.status = status
+
     def print_status(self):
-        get_status_msg = messagebody("main", self.ID, "get_all_status")
+        get_status_msg = messagebody("mediator", self.ID, None, "get_all_status")
         self.pipe.send(get_status_msg)
 
+        #Requested method returns a dict of all subsystems and their current status
         msg = self.reciever("get_all_status").message
-        print('\n'.join(msg))
+
+        print(msg)
 
 
 
