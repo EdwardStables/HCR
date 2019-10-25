@@ -45,31 +45,26 @@ class operator:
         self.subsystem = subsystem
         self.ID = self.subsystem.ID
         self.pipe = self.subsystem.pipe
-        self.reciever = self.subsystem.pipe_reciever
+        self.set_status = self.subsystem.set_status
         self.messages = {}
-
-    def set_status(self, status):
-        self.subsystem.status = status
 
     def print_status(self):
         """Send a request for all subsystem status values to mediator"""
-        get_status_msg = messagebody("mediator", self.ID, None, "get_all_status")
-        self.pipe.send(get_status_msg)
-
+        self.subsystem.send_message("all", "get_all_status", None)
         #Requested method returns a dict of all subsystems and their current status
-        msg = self.reciever("get_all_status").message
+        msg = self.subsystem.get_messages(timeout=1, ref="get_all_status_reply")
 
         print(msg)
 
     def stop(self, arg):
         """Send an exit signal to all subsystems."""
-        msg = messagebody(None, self.ID, None, "stop")
         if arg == '':
-            msg.target_id = "all"
-            self.pipe.send(msg)
+            self.subsystem.send_message("all", "stop", None)
         else:
-            for s in subsystems:
-                msg.target_id = s
-                self.pipe.send(msg)
-
-
+            ss = list(set(arg.split())) #cast to set to ensure no repeats
+            if "status" in ss:
+                #ensures status is the last thing to be sent stop
+                ss.remove("status")
+                ss.append("status")
+            for s in ss:
+                self.subsystem.send_message(s, "stop", None)

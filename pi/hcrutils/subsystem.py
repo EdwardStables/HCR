@@ -1,4 +1,9 @@
+from .message import messagebody
+
 import multiprocessing as mp 
+import threading as th
+from collections import defaultdict
+from time import sleep
 
 class subsystem:
     """Contains all methods for setting up and communicating with any subsystem.
@@ -22,20 +27,68 @@ class subsystem:
         self.policy = policy
         self.pipe = None
         self.status = "Starting"
-        self.messages = {}
+        self.messages = defaultdict(list)
+        self.message_lock = mp.Lock()
+        self.pipe_lock = mp.Lock()
 
-    def pipe_reciever(self, ref):
-        """Manages retrieving data from the queue. If the message with the desired response is not
-        already stored in self.messages, the pipe will be polled for up to a second to find the message.
-        Extra messages will be stored in self.messages"""
-        while self.pipe.poll(1):
-            msg = self.pipe.recv()
-            self.messages[msg.ref] = msg
+        self.reciever_thread = th.Thread(target=self.message_reciever)
+        self.reciever_thread.start()
 
-        if any(r == 'stop' for r in self.messages):
-            self.stop()
+    def message_reciever(self):
+        """Threaded function to handle all recieved messages. 
 
-        return self.messages.pop(ref)
+        Stores specific messages in self.messages.
+        Executes general messages (stop, status, etc.)
+        """
+        while True:
+            sleep(1) #only run every few seconds.
+            with self.message_lock, self.pipe_lock: #Lock while writing 
+                while self.pipe.poll(): #while there are messages in the pipe
+                    msg = self.pipe.recv()
+                    self.messages[msg.ref].append(msg)
+
+            remove_ref = []
+            #Checking for components inside should be threadsafe
+            if 'stop' in self.messages:
+                remove_ref.append('stop')
+                self.stop()
+            if 'get_all_status' in self.messages:
+                remove_ref.append('get_all_status')
+                self.send_message('status', 'get_all_status_reply', (self.ID, self.status))
+            #Add further global functions here.
+            """
+            if 'ref' in self.messages:
+                remove_ref.append('ref')
+                do thing...
+            """
+
+            with self.message_lock:
+                for r in remove_ref:
+                    self.messages.pop(r)
+
+    def get_messages(self, timeout = 0, ref = None):
+        """Returns messages from self.messages that match the passed reference,
+        or (if no reference given), all messages.
+
+        Passed messages are removed from self.messages.
+    
+        Returns an empty list if nothing is in place, takes an optional timeout to wait.
+        """
+        sleep(timeout) 
+        with self.message_lock:
+            if ref == None:
+                ret = [v for _, v in self.messages.items()]
+                self.messages = {}
+            else:
+                ret = self.messages[ref]
+                self.messages.pop(ref)
+
+        return ret
+
+    def send_message(self, target, ref, message):
+        msg = messagebody(target_id = target, sender_id = self.ID, ref = ref, message = message)
+        with self.pipe_lock:
+            self.pipe.send(msg)
 
     def set_status(self, status):
         print("Status for {} changed. New status is {}".format(self.ID, status))

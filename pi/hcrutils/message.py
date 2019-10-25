@@ -18,15 +18,16 @@ class mediator:
         self.processes = processes
         self.greedy = [p for p, v in self.processes.items() if v['policy'] == 'greedy']
         self.pipes = [p['pipe'] for _, p in self.processes.items()]
-        self.status_funcs = {p:v['get_status'] for p, v in processes.items()}
         self.messageQueue = deque()
+        self.status = "Starting"
 
     def start(self):
         i = 0
+        self.status = "Looping"
         while True:
             i += 1
             self.add_messages()
-            self.send_greedy()
+            #self.send_greedy()
             self.send_messages() 
 
     def add_messages(self):
@@ -54,6 +55,7 @@ class mediator:
         elif target == "all":
             for p, v in self.processes.items():
                 v["pipe"].send(message)
+            self.handle_self_message(message)
 
         elif target in self.processes:
             self.processes[target]["pipe"].send(message)
@@ -62,6 +64,7 @@ class mediator:
             address_error = messagebody(
                 target_id = "status",
                 sender_id = "mediator",
+                ref = "error",
                 message = '{} send a message to unknown id: "{}"'.format(
                     message.sender_id, 
                     message.target_id
@@ -70,13 +73,8 @@ class mediator:
             self.messageQueue.append(address_error)
 
     def handle_self_message(self, message: messagebody):
-        action = message.ref
-        connect = message.message 
+        ref = message.ref
 
-        if action == "get_all_status":
-            reply = messagebody("status", "mediator", self.get_status(), ref=action)            
+        if ref == "get_all_status":
+            reply = messagebody("status", "mediator", self.status, ref="get_all_status_reply")            
             self.messageQueue.append(reply)
-
-    def get_status(self):
-        status = {p:v() for p, v in self.status_funcs.items()}
-        return status
