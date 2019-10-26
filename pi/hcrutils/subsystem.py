@@ -3,7 +3,7 @@ from .message import messagebody
 import multiprocessing as mp 
 import threading as th
 from collections import defaultdict
-from time import sleep
+from time import sleep, time
 
 class subsystem:
     """Contains all methods for setting up and communicating with any subsystem.
@@ -31,17 +31,14 @@ class subsystem:
         self.message_lock = mp.Lock()
         self.pipe_lock = mp.Lock()
 
-        self.reciever_thread = th.Thread(target=self.message_reciever)
-        self.reciever_thread.start()
-
-    def message_reciever(self):
-        """Threaded function to handle all recieved messages. 
+    def message_receiver(self):
+        """Threaded function to handle all received messages. 
 
         Stores specific messages in self.messages.
         Executes general messages (stop, status, etc.)
         """
         while True:
-            sleep(1) #only run every few seconds.
+            sleep(0.1) #only run every few seconds.
             with self.message_lock, self.pipe_lock: #Lock while writing 
                 while self.pipe.poll(): #while there are messages in the pipe
                     msg = self.pipe.recv()
@@ -54,7 +51,7 @@ class subsystem:
                 self.stop()
             if 'get_all_status' in self.messages:
                 remove_ref.append('get_all_status')
-                self.send_message('status', 'get_all_status_reply', (self.ID, self.status))
+                self.send_message('status', 'get_all_status_reply', self.status)
             #Add further global functions here.
             """
             if 'ref' in self.messages:
@@ -74,7 +71,7 @@ class subsystem:
     
         Returns an empty list if nothing is in place, takes an optional timeout to wait.
         """
-        sleep(timeout) 
+        sleep(timeout)
         with self.message_lock:
             if ref == None:
                 ret = [v for _, v in self.messages.items()]
@@ -82,7 +79,7 @@ class subsystem:
             else:
                 ret = self.messages[ref]
                 self.messages.pop(ref)
-
+        
         return ret
 
     def send_message(self, target, ref, message):
@@ -90,22 +87,22 @@ class subsystem:
         with self.pipe_lock:
             self.pipe.send(msg)
 
-    def set_status(self, status):
-        print("Status for {} changed. New status is {}".format(self.ID, status))
-        self.status = status
-
-    def get_status(self):
-        print("Status for {} requested. Status is {}".format(self.ID, self.status))
-        return self.status
-
-    def _run(self, **kwargs):
+    def _run(self):
         """Launch all subsystem functionality from this function.
         
         Must be implemented on a per-subsystem basis as all are different.
         """
         raise NotImplementedError
 
-    def start(self, **kwargs):
+    def setup_threading(self, **kwargs):
+        """Itermediate step for subprocess, required to properly fork threading"""
+        self.receiver_thread = th.Thread(target=self.message_receiver, args=())
+        self.receiver_thread.daemon = True
+        self.receiver_thread.start()
+
+        self._run()
+
+    def start(self):
         """Sets up multiprocessing interface and returns subsystem's pipe.
 
         Passes all kwargs to _run().
@@ -116,7 +113,7 @@ class subsystem:
         """
         pipe_a, pipe_b = mp.Pipe() 
         self.pipe = pipe_a
-        p = mp.Process(target=self._run, kwargs=kwargs)
+        p = mp.Process(target=self.setup_threading)
         p.start()
         self.status = "Started"
         return pipe_b, p, self.ID

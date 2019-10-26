@@ -27,7 +27,6 @@ def main():
             "pipe" : p,
             "process" : s,
             "policy" : ss.policy,
-            "get_status" : ss.get_status,
         }
 
     process_mediator = mediator(processes)
