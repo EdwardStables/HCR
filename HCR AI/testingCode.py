@@ -6,9 +6,7 @@ from states import *
 from flags import Flag
 import keyboard
 
-
 cuteRobot = StateMachine()
-
 
 for i in range(3000):
     print("Cycle:", i, end='')

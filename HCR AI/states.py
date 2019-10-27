@@ -24,15 +24,17 @@ class Idle(State):
     - Otherwise remain in this state.
     """
     def run(self):
-        print("IDLE STATE")
+        flag.currentState = Idle()
         flag.talking = False
         flag.processing = False
         flag.listening = False
         flag.name = "unknown"
         # flag.printFlags()
     def event(self, event):
+        
         if flag.person == True:
             return WatchingGreeting()
+        
         return self
 
 class WatchingGreeting(State):
@@ -46,18 +48,21 @@ class WatchingGreeting(State):
     - Otherwise remain in this state.
     """
     def run(self): 
-        print("GREETING STATE")
+        flag.currentState = WatchingGreeting()
         flag.talking = True
         flag.listen = False
         # flag.printFlags()
     def event(self, event):
+        
         if flag.person == True and flag.name != "unknown":
-            say(("Hello" + flag.name))
+            say(("Hello " + flag.name))
             return WatchingWaiting()
+        
         elif flag.person == True and flag.name == "unknown":
             say("I don't know you, what is your name?")
             flag.name = getName()
             return WatchingGetName()
+        
         elif flag.person == False:
             return Idle()
         return self
@@ -71,16 +76,19 @@ class WatchingGetName(State):
     - Otherwise remain in this state.
     """
     def run(self): 
-        print("GETTING NAME STATE")
+        flag.currentState = WatchingGetName()
         flag.talking = False
         flag.listening = True
         # flag.printFlags()
         # Wait for name to switch from "unknown" to something new
     def event(self, event):
-        if flag.person == True and flag.name != "unknown":
+        
+        if flag.person == True: # and flag.name != "unknown":
             return WatchingGreeting()
+        
         elif flag.person == False:
             return Idle()
+        
         return self
 
 class WatchingWaiting(State):
@@ -92,16 +100,19 @@ class WatchingWaiting(State):
     - Otherwise remain in this state.   
     """
     def run(self): 
-        print("WATCHING STATE")
+        flag.currentState = WatchingWaiting()
         flag.processing = False
         flag.listening = True
         flag.talking = False
         # flag.printFlags()
     def event(self, event):
+        
         if flag.person == True and flag.processing == True:
             return WatchingProcessing()
+        
         if flag.person == False:
             return Idle()
+        
         return self
 
 class WatchingTalking(State):
@@ -113,13 +124,16 @@ class WatchingTalking(State):
     - Otherwise remain in this state.   
     """
     def run(self): 
-        print("TALKING STATE")
+        flag.currentState = WatchingTalking()
         # flag.printFlags()
     def event(self, event):
+        
         if flag.person == True and flag.talking == False:
             return WatchingWaiting()
+        
         if flag.person == False and flag.talking == False:
             return Idle()
+        
         return self
 
 class WatchingProcessing(State):
@@ -131,12 +145,15 @@ class WatchingProcessing(State):
     - Otherwise remain in this state.
     """
     def run(self): 
-        print("PROCESSING STATE")
+        flag.currentState = WatchingProcessing()
         flag.listening = False
         # flag.printFlags()
     def event(self, event):
+        
         if flag.person == True:
             return WatchingTalking()
+        
         if flag.person == False:
             return Idle()
+        
         return self

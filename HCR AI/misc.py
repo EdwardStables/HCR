@@ -1,6 +1,35 @@
 # misc.py
 
 import time
+from termios import tcflush, TCIFLUSH
+import sys
+
+def getName():
+    """
+    Clean the input buffer and get a name that's typed in
+    \n(Note, may only work on Linux)
+    """
+
+    tcflush(sys.stdin, TCIFLUSH)
+    name = input()
+    updateNameDatabase(name)
+    return name
+
+def updateNameDatabase(name):
+    """
+    Take a name and if it isn't a recognised name, add it to the name list
+    """
+    
+    with open("knownPeople.txt") as f:
+        knownPeople = f.readlines()
+    knownPeople = [x.strip() for x in knownPeople] 
+
+    if name not in knownPeople:
+        knownPeople.append(name)
+
+    with open('knownPeople.txt', 'w') as f:
+        for item in knownPeople:
+            f.write("%s\n" % item)
 
 def validQuestion(question):
     temp = question.split()[2:]
@@ -16,40 +45,6 @@ def validQuestion(question):
         return questions.index(temp)
     except:
         return -1
-
-def getName():
-    time.sleep(3)
-    name = "Bob"
-    updateNameDatabase(name)
-    return name
-
-def updateNameDatabase(name):
-    print("updateNameDatabase() not yet implemented.")
-
-def sayHello(event):
-    with open("knownPeople.txt") as f:
-        knownPeople = f.readlines()
-    knownPeople = [x.strip() for x in knownPeople] 
-
-    temp = event.split()[2]
-
-    try:
-        personIndex = knownPeople.index(temp)
-    except:
-        personIndex = -1
-    
-    if personIndex >= 0:
-        say(('Hello ' + knownPeople[personIndex]))
-    else:
-        say('I don\'t know you, what is your name?')
-        name = "Bob"
-        knownPeople.append(name)
-
-        with open('knownPeople.txt', 'w') as f:
-            for item in knownPeople:
-                f.write("%s\n" % item)
-
-        say(('Hello ' + name))
 
 def answerQuestion(question):
     if question == 0:

@@ -10,10 +10,8 @@ class StateMachine(object):
 
     def __init__(self):
         """ Initialize the components."""
-        # Start with a default state.
         self.state = Idle()
         self.state.run()
-
 
     def event(self, event):
         """
