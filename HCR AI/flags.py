@@ -6,13 +6,13 @@ class Flag(object):
     """
     
     def __init__(self):
-        self.currentState = "Initial State"
+        self.currentState = "Idle()"
         self.person = False
         self.listening = False
         self.processing = False
         self.talking = True
         self.name = "unknown"
-        self.question = "invalid question"
+        self.question = -1
     
     def printFlags(self):
         print("current state:", self.currentState,
