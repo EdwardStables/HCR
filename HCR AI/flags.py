@@ -19,5 +19,6 @@ class Flag(object):
             "\nprocessing", self.processing,
             "\ntalking", self.talking, 
             "\nname", self.name, 
-            "\nquestion", self.question )
+            "\nquestion", self.question,
+            "\n#################" )
 

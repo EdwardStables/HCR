@@ -21,7 +21,7 @@ def getName():
     time.sleep(3)
     name = "Bob"
     updateNameDatabase(name)
-    # flag.name = name
+    return name
 
 def updateNameDatabase(name):
     print("updateNameDatabase() not yet implemented.")
