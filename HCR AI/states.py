@@ -63,7 +63,6 @@ class WatchingGreeting(State):
         
         elif flag.person == True and flag.name == "unknown":
             say("I don't know you, what is your name?")
-            flag.name = getName()
             return WatchingGetName()
         
         elif flag.person == False:
@@ -87,6 +86,7 @@ class WatchingGetName(State):
     def event(self, event):
         
         if flag.person == True: # and flag.name != "unknown":
+            flag.name = getName()
             return WatchingGreeting()
         
         elif flag.person == False:
@@ -112,6 +112,7 @@ class WatchingWaiting(State):
     def event(self, event):
         
         if flag.person == True and flag.processing == True:
+            say("What is your question?")
             return WatchingProcessing()
         
         if flag.person == False:
@@ -131,13 +132,14 @@ class WatchingTalking(State):
     def run(self): 
         flag.currentState = "WatchingTalking()"
         
-    def event(self, event):
+    def event(self, event):        
         
         if flag.person == True and flag.talking == False and flag.question == -1:
             say("Invalid question, please ask a valid question.")
             return WatchingProcessing()
 
         if flag.person == True and flag.talking == False and flag.question == 0:
+            say("Okay.")
             return WatchingWaiting()
 
         if flag.person == True and flag.talking == False and flag.question > 0:
@@ -162,11 +164,11 @@ class WatchingProcessing(State):
     def run(self): 
         flag.currentState = "WatchingProcessing()"
         flag.listening = False
-        flag.question = getQuestion()
         
     def event(self, event):
         
         if flag.person == True:
+            flag.question = getQuestion()
             return WatchingTalking()
         
         if flag.person == False:

@@ -12,7 +12,7 @@ def getName():
     """
 
     tcflush(sys.stdin, TCIFLUSH)
-    name = input()
+    name = input("  You say:\n   ")
     updateNameDatabase(name)
     return name
 
@@ -43,9 +43,8 @@ def getQuestion():
     \n(Note: 'tcflush' may only work on Linux)
     """
 
-    say("What is your question?")
     tcflush(sys.stdin, TCIFLUSH)
-    question = input()
+    question = input("  You say:\n   ")
 
     return validQuestion(question)
 
@@ -83,5 +82,5 @@ def say(thing):
     """
     Function to simulate the robot saying something.
     """
-    
-    print('     ', thing, '\n')
+
+    print('  Robot says:\n  ', thing, '\n')
