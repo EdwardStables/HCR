@@ -1,4 +1,5 @@
 import sys
+import os
 import multiprocessing as mp
 
 from hcrutils.subsystem import subsystem
@@ -7,12 +8,15 @@ from hcrutils.message import mediator
 
 #Import each subsystem that needs to be launched
 from status_subsystem.status import status
-from test_subsystem.test import test
+from face_recog_subsystem.face_recog import face_recog
 
 def main():
+    ROOT = os.getcwd()
+
     #Define each subsystem
     subsystems = [
         status(),
+        face_recog(ROOT, 0),
     ]
     
     #Only launch if all are of the correct type
