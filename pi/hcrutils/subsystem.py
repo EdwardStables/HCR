@@ -63,7 +63,7 @@ class subsystem:
                 for r in remove_ref:
                     self.messages.pop(r)
 
-    def get_messages(self, timeout = 0, ref = None):
+    def get_messages(self, ref = None, timeout = 0):
         """Returns messages from self.messages that match the passed reference,
         or (if no reference given), all messages.
 
@@ -74,8 +74,10 @@ class subsystem:
         sleep(timeout)
         with self.message_lock:
             if ref == None:
-                ret = [v for _, v in self.messages.items()]
-                self.messages = {}
+                ret = []
+                for _, v in self.messages.items():
+                    ret += v
+                self.messages = defaultdict(list)
             else:
                 ret = self.messages[ref]
                 self.messages.pop(ref)

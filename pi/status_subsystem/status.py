@@ -2,6 +2,7 @@ from hcrutils.subsystem import subsystem
 from hcrutils.message import messagebody
 from cmd import Cmd
 import sys
+from time import sleep, time
 
 class status(subsystem):
     """Provides an interface to show the current status of the code.
@@ -42,6 +43,24 @@ class status(subsystem):
             for s in ss:
                 self.send_message(s, "stop", None)
 
+    def face_count_command(self, wait):
+        self.send_message("face_recog", "num_subscribe", None)
+        end = time() + wait
+        while time() < end:
+            m = self.get_messages("num_faces")
+            for i in m:
+                print(i.message)
+        self.send_message("face_recog", "num_unsubscribe", None)
+
+    def face_pos_command(self, wait):
+        self.send_message("face_recog", "pos_subscribe", None)
+        end = time() + wait
+        while time() < end:
+            m = self.get_messages("pos_faces")
+            for i in m:
+                print(i.message)
+        self.send_message("face_recog", "pos_unsubscribe", None)
+
 class interface(Cmd):
     """Supplies a commandline interface for the program"""
     intro = "HCR Cute Robot project commandline interface :) \n"
@@ -59,3 +78,19 @@ class interface(Cmd):
     def do_stop(self, arg):
         """Safely shut down all subsystems and exit"""
         self.op.stop_command(arg)
+
+    def do_face_count(self, arg):
+        """Start printing the number of faces seen in frame for arg seconds"""
+        try:
+            time = int(arg)
+        except:
+            return  
+        self.op.face_count_command(time)
+
+    def do_face_pos(self, arg):
+        """Start printing the number of faces seen in frame for arg seconds"""
+        try:
+            time = int(arg)
+        except:
+            return  
+        self.op.face_pos_command(time)
