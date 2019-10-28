@@ -10,10 +10,10 @@
                 size: self.size
         EyeImage:
             id: lefteye
-            pos: (100,100)
+            pos: (100,125)
         EyeImage:
             id: righteye
-            pos: (300,100)
+            pos: (450,125)
         Button:
             id: menubutton
             text: 'Go to Menu'
@@ -48,17 +48,17 @@
             rgb:(1,1,1)
         Ellipse:
             pos: self.pos
-            size: (200,275)
+            size: (250,350)
     PupilImage:
         id: pupil
-        pos: (root.x +50,root.y)
+        pos: (root.x + 75, root.y)
 
 <PupilImage>:
     canvas:
         Color:
             rgb: (1,0,0)
         Ellipse:
-            pos: self.pos
             size: (100,100)
+            pos: self.pos
 
             

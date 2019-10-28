@@ -35,11 +35,30 @@ class EyeImage(Widget):
     pass
 
 class PupilImage(Widget):
-    pass
+    def move_pupil(self,value,eyepos):
+        if value < 1.0:
+            newy = eyepos +50
+            anim = Animation(x=self.x, y=newy, duration = .2)
+            anim.start(self)
+        else:
+            newy = eyepos
+            anim = Animation(x=self.x, y=newy, duration = .2)
+            anim.start(self)
+
 
 def moodcallback(instance,value):   #callback for whenever the mood is updated
     print('mood changed to',value)
-    instance.switch_image()
+    right_eye = instance.ids['righteye']
+    left_eye = instance.ids['lefteye']
+    
+    rpupil = right_eye.ids['pupil']
+    lpupil = left_eye.ids['pupil']
+    
+    reye_y = right_eye.y
+    leye_y = left_eye.y
+    
+    rpupil.move_pupil(value,reye_y)
+    lpupil.move_pupil(value,leye_y)
 
 
 sm = ScreenManager()
