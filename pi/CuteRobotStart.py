@@ -9,6 +9,7 @@ from hcrutils.message import mediator
 #Import each subsystem that needs to be launched
 from status_subsystem.status import status
 from face_recog_subsystem.face_recog import face_recog
+from ai_subsystem.ai import ai
 
 def main():
     ROOT = os.getcwd()
@@ -16,7 +17,8 @@ def main():
     #Define each subsystem
     subsystems = [
         status(),
-        face_recog(ROOT, 0),
+        face_recog(ROOT, 0, default_subscribers=[("ai", False)]),
+        ai(),
     ]
     
     #Only launch if all are of the correct type
