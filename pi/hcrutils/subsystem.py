@@ -122,3 +122,11 @@ class subsystem:
 
     def stop(self):
         print("Stop:", self.ID)
+
+    def check_messages(self):
+        """Function to receive and parse messages. 
+
+        Not required to use this function, but should be 
+        used in most cases to enforce consistency.
+        """
+        raise NotImplementedError
