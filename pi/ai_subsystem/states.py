@@ -1,7 +1,5 @@
 # states.py
-
-from misc import *
-from flags import Flag
+from .flags import Flag
 
 # Set up the flags
 flag = Flag()
@@ -12,7 +10,9 @@ class State(object):
     Generic state class that can run code and move into the next state.
     """
     def run(self):
-        assert 0, "run not implemented"
+        raise NotImplementedError
+    def __str__(self):
+        return self.state_string
     def event(self, event):
         pass
 
@@ -26,7 +26,7 @@ class Idle(State):
     - Otherwise remain in this state.
     """
     def run(self):
-        flag.currentState = "Idle()"
+        self.state_string = "Idle"
         flag.talking = False
         flag.processing = False
         flag.listening = False
@@ -51,18 +51,18 @@ class WatchingGreeting(State):
     - Otherwise remain in this state.
     """
     def run(self): 
-        flag.currentState = "WatchingGreeting()"
+        self.state_string = "WatchingGreeting"
         flag.talking = True
         flag.listen = False
         
     def event(self, event):
         
         if flag.person == True and flag.name != "unknown":
-            say(("Hello " + flag.name))
+            #say(("Hello " + flag.name))
             return WatchingWaiting()
         
         elif flag.person == True and flag.name == "unknown":
-            say("I don't know you, what is your name?")
+            #say("I don't know you, what is your name?")
             return WatchingGetName()
         
         elif flag.person == False:
@@ -79,14 +79,14 @@ class WatchingGetName(State):
     - Otherwise remain in this state.
     """
     def run(self): 
-        flag.currentState = "WatchingGetName()"
+        self.state_string = "WatchingGetName"
         flag.talking = False
         flag.listening = True
         
     def event(self, event):
         
         if flag.person == True: # and flag.name != "unknown":
-            flag.name = getName()
+            #flag.name = getName()
             return WatchingGreeting()
         
         elif flag.person == False:
@@ -104,7 +104,7 @@ class WatchingWaiting(State):
     - Otherwise remain in this state.   
     """
     def run(self): 
-        flag.currentState = "WatchingWaiting()"
+        self.state_string = "WatchingWaiting"
         flag.processing = False
         flag.listening = True
         flag.talking = False
@@ -112,7 +112,7 @@ class WatchingWaiting(State):
     def event(self, event):
         
         if flag.person == True and flag.processing == True:
-            say("What is your question?")
+            #say("What is your question?")
             return WatchingProcessing()
         
         if flag.person == False:
@@ -130,16 +130,16 @@ class WatchingTalking(State):
     - Otherwise remain in this state.   
     """
     def run(self): 
-        flag.currentState = "WatchingTalking()"
+        self.state_string = "WatchingTalking"
         
     def event(self, event):        
         
         if flag.person == True and flag.talking == False and flag.question == -1:
-            say("Invalid question, please ask a valid question.")
+            #say("Invalid question, please ask a valid question.")
             return WatchingProcessing()
 
         if flag.person == True and flag.talking == False and flag.question == 0:
-            say("Okay.")
+            #say("Okay.")
             return WatchingWaiting()
 
         if flag.person == True and flag.talking == False and flag.question > 0:
@@ -162,13 +162,13 @@ class WatchingProcessing(State):
     - Otherwise remain in this state.
     """
     def run(self): 
-        flag.currentState = "WatchingProcessing()"
+        self.state_string = "WatchingProcessing"
         flag.listening = False
         
     def event(self, event):
         
         if flag.person == True:
-            flag.question = getQuestion()
+            #flag.question = getQuestion()
             return WatchingTalking()
         
         if flag.person == False:

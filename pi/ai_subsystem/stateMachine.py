@@ -1,7 +1,7 @@
 # stateMachine.py
 
-from states import *
-from flags import Flag
+from .states import *
+from .flags import Flag
 
 class StateMachine(object):
     """ 
@@ -19,7 +19,7 @@ class StateMachine(object):
         Incoming events are delegated to the given states which then handle the event. 
         The result is then assigned as the new state.
         """
-        print(event, '\n')
+        #print(event, '\n')
 
         # The next state will be the result of the on_event function.
         self.state = self.state.event(event)
