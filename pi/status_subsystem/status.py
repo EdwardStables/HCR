@@ -20,6 +20,12 @@ class status(subsystem):
         sys.stdin = open(0)
         interface(self).cmdloop()         
 
+    def check_messages(self):
+        """Status is a special case that doesn't check
+        messages in a main loop.
+        """
+        pass
+
     def status_command(self):
         """Send a request for all subsystem status values to mediator"""
         self.send_message("all", "get_all_status", None)
@@ -60,6 +66,16 @@ class status(subsystem):
             for i in m:
                 print(i.message)
         self.send_message("face_recog", "pos_unsubscribe", None)
+    
+    def ai_state_command(self, wait):
+        self.send_message("ai", "state_update_subscribe", None)
+        end = time() + wait
+        while time() < end:
+            m = self.get_messages("ai_state_update")
+            for i in m:
+                print(i.message)
+        self.send_message("ai", "state_update_unsubscribe", None)
+
 
 class interface(Cmd):
     """Supplies a commandline interface for the program"""
@@ -81,16 +97,32 @@ class interface(Cmd):
 
     def do_face_count(self, arg):
         """Start printing the number of faces seen in frame for arg seconds"""
-        try:
-            time = int(arg)
-        except:
-            return  
+        time = get_num_args(arg)
+        time = time[0] if time else 5
         self.op.face_count_command(time)
 
     def do_face_pos(self, arg):
         """Start printing the number of faces seen in frame for arg seconds"""
-        try:
-            time = int(arg)
-        except:
-            return  
+        time = get_num_args(arg)
+        time = time[0] if time else 5
         self.op.face_pos_command(time)
+
+    def do_ai_state(self, arg):
+        """Print the current state of the ai subsystem for arg seconds"""
+        time = get_num_args(arg)
+        time = time[0] if time else 5
+        self.op.ai_state_command(time)
+
+
+def get_num_args(arg):
+    args = arg.split()
+    time = []
+    for a in args:
+        try:
+            time.append(int(a))
+        except:
+            continue
+    return time
+
+    
+
