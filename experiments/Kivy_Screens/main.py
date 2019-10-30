@@ -27,6 +27,14 @@ class EyeScreen(Screen):
         else:
             anim = Animation(x=100, y=100)
             anim.start(eyeimage)
+            
+    def move_look(self,x_change,y_change):
+        lefteye = self.ids['lefteye']
+        righteye = self.ids['righteye']
+        rpupil = righteye.ids['pupil']
+        lpupil = lefteye.ids['pupil']
+        rpupil.move_pupil_pos(rpupil.x+x_change,rpupil.y+y_change)
+        lpupil.move_pupil_pos(lpupil.x+x_change,lpupil.y+y_change)
 
 class MenuScreen(Screen):
     pass
@@ -45,6 +53,9 @@ class PupilImage(Widget):
             anim = Animation(x=self.x, y=newy, duration = .2)
             anim.start(self)
 
+    def move_pupil_pos(self,newx,newy):
+        anim = Animation(x=newx,y=newy, duration =.2)
+        anim.start(self)
 
 def moodcallback(instance,value):   #callback for whenever the mood is updated
     print('mood changed to',value)
