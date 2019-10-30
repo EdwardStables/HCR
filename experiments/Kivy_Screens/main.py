@@ -7,7 +7,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.graphics import Rectangle, Color, Ellipse
 from kivy.animation import Animation
 from kivy.lang import Builder
-from kivy.properties import NumericProperty
+from kivy.properties import NumericProperty, ReferenceListProperty
 
 Builder.load_file('robot.kv')
 
@@ -31,11 +31,16 @@ class EyeScreen(Screen):
     def move_look(self,x_change,y_change):
         lefteye = self.ids['lefteye']
         righteye = self.ids['righteye']
-        rpupil = righteye.ids['pupil']
+        
         lpupil = lefteye.ids['pupil']
-        rpupil.move_pupil_pos(rpupil.x+x_change,rpupil.y+y_change)
-        lpupil.move_pupil_pos(lpupil.x+x_change,lpupil.y+y_change)
-
+        rpupil = righteye.ids['pupil']
+        
+        lpupil.target_pos[0] += x_change
+        lpupil.target_pos[1] += y_change
+        
+        rpupil.target_pos[0] += x_change
+        rpupil.target_pos[1] += y_change
+        
 class MenuScreen(Screen):
     pass
 
@@ -43,6 +48,10 @@ class EyeImage(Widget):
     pass
 
 class PupilImage(Widget):
+    tx = NumericProperty()
+    ty = NumericProperty()
+    target_pos = ReferenceListProperty(tx,ty)
+
     def move_pupil(self,value,eyepos):
         if value < 1.0:
             newy = eyepos +50
@@ -53,8 +62,8 @@ class PupilImage(Widget):
             anim = Animation(x=self.x, y=newy, duration = .2)
             anim.start(self)
 
-    def move_pupil_pos(self,newx,newy):
-        anim = Animation(x=newx,y=newy, duration =.2)
+    def on_target_pos(self,instance,value):
+        anim = Animation(x=value[0],y=value[1], duration =.2)
         anim.start(self)
 
 def moodcallback(instance,value):   #callback for whenever the mood is updated
@@ -77,6 +86,8 @@ eyescreen = EyeScreen(name='eyes')
 menuscreen = MenuScreen(name='menus')
 
 eyescreen.bind(mood=moodcallback)
+eyescreen.ids['righteye'].ids['pupil'].target_pos=eyescreen.ids['righteye'].ids['pupil'].pos
+eyescreen.ids['lefteye'].ids['pupil'].target_pos=eyescreen.ids['lefteye'].ids['pupil'].pos
 
 sm.add_widget(eyescreen)
 sm.add_widget(menuscreen)
