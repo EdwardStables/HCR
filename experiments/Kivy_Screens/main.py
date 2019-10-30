@@ -63,11 +63,20 @@ class PupilImage(Widget):
             anim.start(self)
 
     def on_target_pos(self,instance,value):
-        anim = Animation(x=value[0],y=value[1], duration =.2)
+        print(self.parent.id)
+        if value[0] < self.parent.x:
+            self.target_pos[0] = self.parent.x
+        elif value[0] > self.parent.x +150:
+            self.target_pos[0] = self.parent.x +150
+        if value[1] < self.parent.y:
+            self.target_pos[1] = self.parent.y
+        elif value[1] > self.parent.y +250:
+            self.target_pos[1] = self.parent.y +250
+        
+        anim = Animation(x=self.target_pos[0],y=self.target_pos[1], duration =.2)
         anim.start(self)
 
 def moodcallback(instance,value):   #callback for whenever the mood is updated
-    print('mood changed to',value)
     right_eye = instance.ids['righteye']
     left_eye = instance.ids['lefteye']
     
