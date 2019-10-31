@@ -7,7 +7,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.graphics import Rectangle, Color, Ellipse
 from kivy.animation import Animation
 from kivy.lang import Builder
-from kivy.properties import NumericProperty
+from kivy.properties import NumericProperty, ReferenceListProperty
 
 Builder.load_file('robot.kv')
 
@@ -27,7 +27,20 @@ class EyeScreen(Screen):
         else:
             anim = Animation(x=100, y=100)
             anim.start(eyeimage)
-
+            
+    def move_look(self,x_change,y_change):
+        lefteye = self.ids['lefteye']
+        righteye = self.ids['righteye']
+        
+        lpupil = lefteye.ids['pupil']
+        rpupil = righteye.ids['pupil']
+        
+        lpupil.target_pos[0] += x_change
+        lpupil.target_pos[1] += y_change
+        
+        rpupil.target_pos[0] += x_change
+        rpupil.target_pos[1] += y_change
+        
 class MenuScreen(Screen):
     pass
 
@@ -35,6 +48,10 @@ class EyeImage(Widget):
     pass
 
 class PupilImage(Widget):
+    tx = NumericProperty()
+    ty = NumericProperty()
+    target_pos = ReferenceListProperty(tx,ty)
+
     def move_pupil(self,value,eyepos):
         if value < 1.0:
             newy = eyepos +50
@@ -45,9 +62,21 @@ class PupilImage(Widget):
             anim = Animation(x=self.x, y=newy, duration = .2)
             anim.start(self)
 
+    def on_target_pos(self,instance,value):
+        print(self.parent.id)
+        if value[0] < self.parent.x:
+            self.target_pos[0] = self.parent.x
+        elif value[0] > self.parent.x +150:
+            self.target_pos[0] = self.parent.x +150
+        if value[1] < self.parent.y:
+            self.target_pos[1] = self.parent.y
+        elif value[1] > self.parent.y +250:
+            self.target_pos[1] = self.parent.y +250
+        
+        anim = Animation(x=self.target_pos[0],y=self.target_pos[1], duration =.2)
+        anim.start(self)
 
 def moodcallback(instance,value):   #callback for whenever the mood is updated
-    print('mood changed to',value)
     right_eye = instance.ids['righteye']
     left_eye = instance.ids['lefteye']
     
@@ -66,6 +95,8 @@ eyescreen = EyeScreen(name='eyes')
 menuscreen = MenuScreen(name='menus')
 
 eyescreen.bind(mood=moodcallback)
+eyescreen.ids['righteye'].ids['pupil'].target_pos=eyescreen.ids['righteye'].ids['pupil'].pos
+eyescreen.ids['lefteye'].ids['pupil'].target_pos=eyescreen.ids['lefteye'].ids['pupil'].pos
 
 sm.add_widget(eyescreen)
 sm.add_widget(menuscreen)

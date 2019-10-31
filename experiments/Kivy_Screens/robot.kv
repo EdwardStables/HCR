@@ -11,9 +11,11 @@
         EyeImage:
             id: lefteye
             pos: (100,125)
+            size: (250,350)
         EyeImage:
             id: righteye
             pos: (450,125)
+            size: (250,350)
         Button:
             id: menubutton
             text: 'Go to Menu'
@@ -22,6 +24,32 @@
                 root.manager.current = 'menus'
             size_hint: (.1,.1)
             pos_hint:{"right":1,"top":1}
+            
+        Button:
+            id: upbutton
+            text: 'Up'
+            on_press: root.move_look(0,10)
+            size_hint: (.1,.1)
+            pos_hint:{"top":1,"right":0.5}
+        Button:
+            id: rightbutton
+            text: 'Right'
+            on_press: root.move_look(10,0)
+            size_hint: (.1,.1)
+            pos_hint:{"top":0.5,"right":1}
+        Button:
+            id: downbutton
+            text: 'Down'
+            on_press: root.move_look(0,-10)
+            size_hint: (.1,.1)
+            pos_hint:{"right":0.5}
+        Button:
+            id: leftbutton
+            text: 'Left'
+            on_press: root.move_look(-10,0)
+            size_hint: (.1,.1)
+            pos_hint:{"top":0.5,}
+            
         TextInput:
             id: moodinput
             input_filter: 'float'
@@ -41,8 +69,8 @@
             id: randombutton
             text: 'Some Option'
 
-
 <EyeImage>:
+    size: (250,350)
     canvas:
         Color:
             rgb:(1,1,1)
@@ -60,5 +88,3 @@
         Ellipse:
             size: (100,100)
             pos: self.pos
-
-            

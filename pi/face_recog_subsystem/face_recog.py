@@ -25,7 +25,7 @@ class face_recog(subsystem):
         self.video_capture_num = video_capture_num
         cascPath = path.join(self.root, 'haarcascade_frontalface_default.xml')
         self.faceCascade = cv.CascadeClassifier(cascPath)
-        self.video_capture = cv.VideoCapture(0)
+        self.video_capture = cv.VideoCapture(self.video_capture_num)
         self.position_subscribers = [id for id, pos in default_subscribers if pos]
         self.number_subscribers = [id for id, pos in default_subscribers if not pos]
         super().__init__("face_recog", "id_only")
