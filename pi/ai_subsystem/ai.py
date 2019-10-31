@@ -35,7 +35,7 @@ class ai(subsystem):
         #Update flags:
         #Receive most recent number of faces in frame.
         num_faces = self.get_messages(ref="num_faces")
-        num_faces = num_faces[0] if len(num_faces) else []
+        num_faces = num_faces[0].message if len(num_faces) else []
         self.robot.flags.person = bool(num_faces)
         #Add processing for the rest of the flags here...
 
