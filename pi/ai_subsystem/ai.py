@@ -3,6 +3,7 @@ from hcrutils.message import messagebody
 from .stateMachine import StateMachine
 from .flags import Flag
 from time import sleep, time
+from collections import deque
 
 class ai(subsystem):
     """Main statemachine ai process"""
@@ -10,6 +11,7 @@ class ai(subsystem):
     def __init__(self, default_state_subs=[], loop_time=0.5):
         self.state_subs = default_state_subs
         self.loop_time = loop_time
+        self.last_face_number = 0
         super().__init__("ai", "id_only")
 
 
@@ -35,8 +37,15 @@ class ai(subsystem):
         #Update flags:
         #Receive most recent number of faces in frame.
         num_faces = self.get_messages(ref="num_faces")
-        num_faces = num_faces[0].message if len(num_faces) else []
-        self.robot.flags.person = bool(num_faces)
+        num_faces = num_faces[0] if len(num_faces) else []
+        
+        if self.last_face_number != num_faces.message:
+            print("Number of faces:", num_faces.message)
+            self.last_face_number = num_faces.message
+
+        
+        self.robot.flags.person = bool(num_faces.message)
+
         #Add processing for the rest of the flags here...
 
         #Handle remaining messages

@@ -31,6 +31,8 @@ class Idle(State):
         flag.processing = False
         flag.listening = False
         flag.name = "unknown"
+        flag.timeout = 5
+        flag.lastNonTimeOut = Idle()
         
     def event(self, event):
         
@@ -38,6 +40,23 @@ class Idle(State):
             return WatchingGreeting()
         
         return self
+
+
+class TimingOut(State):
+    def run(self):
+        self.state_string = "TimingOut"
+        flag.timeout = flag.timeout - 1
+    def event(self, event):
+        
+        if flag.timeout == 0:
+            return Idle()
+
+        if flag.person == True:
+            flag.timeout = 5
+            return flag.lastNonTimeOut
+        
+        return self
+
 
 
 class WatchingGreeting(State):
@@ -54,6 +73,7 @@ class WatchingGreeting(State):
         self.state_string = "WatchingGreeting"
         flag.talking = True
         flag.listen = False
+        flag.lastNonTimeOut = WatchingGreeting()
         
     def event(self, event):
         
@@ -66,7 +86,7 @@ class WatchingGreeting(State):
             return WatchingGetName()
         
         elif flag.person == False:
-            return Idle()
+            return TimingOut()
         return self
 
 
@@ -79,18 +99,19 @@ class WatchingGetName(State):
     - Otherwise remain in this state.
     """
     def run(self): 
-        self.state_string = "WatchingGetName"
+        self.state_string = "Idle"
         flag.talking = False
         flag.listening = True
+        flag.lastNonTimeOut = WatchingGetName()
         
     def event(self, event):
         
         if flag.person == True: # and flag.name != "unknown":
-            #flag.name = getName()
+            flag.name = "getName()"
             return WatchingGreeting()
         
         elif flag.person == False:
-            return Idle()
+            return TimingOut()
         
         return self
 
@@ -108,6 +129,7 @@ class WatchingWaiting(State):
         flag.processing = False
         flag.listening = True
         flag.talking = False
+        flag.lastNonTimeOut = WatchingWaiting()
         
     def event(self, event):
         
@@ -116,7 +138,7 @@ class WatchingWaiting(State):
             return WatchingProcessing()
         
         if flag.person == False:
-            return Idle()
+            return TimingOut()
         
         return self
 
@@ -131,6 +153,7 @@ class WatchingTalking(State):
     """
     def run(self): 
         self.state_string = "WatchingTalking"
+        flag.lastNonTimeOut = WatchingTalking()
         
     def event(self, event):        
         
@@ -143,11 +166,11 @@ class WatchingTalking(State):
             return WatchingWaiting()
 
         if flag.person == True and flag.talking == False and flag.question > 0:
-            answerQuestion(flag.question - 1) # Subtract 1 because index 0 is the nevermind question
+            # answerQuestion(flag.question - 1) # Subtract 1 because index 0 is the nevermind question
             return WatchingWaiting()
         
         if flag.person == False and flag.talking == False:
-            return Idle()
+            return TimingOut()
         
         return self
 
@@ -164,6 +187,7 @@ class WatchingProcessing(State):
     def run(self): 
         self.state_string = "WatchingProcessing"
         flag.listening = False
+        flag.lastNonTimeOut = WatchingProcessing()
         
     def event(self, event):
         
@@ -172,6 +196,6 @@ class WatchingProcessing(State):
             return WatchingTalking()
         
         if flag.person == False:
-            return Idle()
+            return TimingOut()
         
         return self
