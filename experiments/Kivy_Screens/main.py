@@ -7,7 +7,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.graphics import Rectangle, Color, Ellipse
 from kivy.animation import Animation
 from kivy.lang import Builder
-from kivy.properties import NumericProperty, ReferenceListProperty
+from kivy.properties import NumericProperty, ReferenceListProperty, BoundedNumericProperty
 
 Builder.load_file('robot.kv')
 
@@ -18,15 +18,19 @@ class EyeScreen(Screen):
         value = self.ids['moodinput']
         self.mood = value.text
 
-    def on_mood(self,instance,value):
+    def on_mood(self,instance,value):   # put whatever happens on mood change here
         leftlid = self.ids['lefteye'].ids['lid']
         rightlid= self.ids['righteye'].ids['lid']
         if value < 1.0:
-            leftlid.move_lid(100)
-            rightlid.move_lid(100)
+            leftlid.open_value =0.5
+            rightlid.open_value =0.5
+            leftlid.open_lid()
+            rightlid.open_lid()
         else:
-            leftlid.move_lid(0)
-            rightlid.move_lid(0)
+            leftlid.open_value =0
+            rightlid.open_value =0
+            leftlid.open_lid()
+            rightlid.open_lid()
 
     def move_look(self,x_change,y_change):
         lefteye = self.ids['lefteye']
@@ -37,6 +41,9 @@ class EyeScreen(Screen):
 
         lpupil.target_add(x_change,y_change)
         rpupil.target_add(x_change,y_change)
+
+    def set_look(self,x_target,y_target): #give input as a value betewen 0 and 1 for relative positions
+        lpupil.target_set(x_target,y_target)
     
     
 class MenuScreen(Screen):
@@ -46,8 +53,8 @@ class EyeImage(Widget):
     pass
 
 class PupilImage(Widget):
-    tx = NumericProperty()
-    ty = NumericProperty()
+    tx = BoundedNumericProperty(0, min=-1, max=1,errorhandler=lambda x: 1 if x > 1 else -1)
+    ty = BoundedNumericProperty(-1, min=-1, max=1,errorhandler=lambda x: 1 if x > 1 else -1)
     target_pos = ReferenceListProperty(tx,ty)
 
     def target_add(self,x_change,y_change):
@@ -55,22 +62,25 @@ class PupilImage(Widget):
         self.target_pos[1] += y_change
     
     def on_target_pos(self,instance,value):
-        if value[0] < self.parent.x:
-            self.target_pos[0] = self.parent.x
-        elif value[0] > self.parent.x +150:
-            self.target_pos[0] = self.parent.x +150
-        if value[1] < self.parent.y:
-            self.target_pos[1] = self.parent.y
-        elif value[1] > self.parent.y +250:
-            self.target_pos[1] = self.parent.y +250
+        print('updating pupil pos'+str(value))
+        print(str(self.parent.y)+','+str(self.target_pos[0])+','+str(self.size[0]))
+        abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
+        abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-self.size[1]) 
+        print(str(abs_x) + "," + str(abs_y))
         
-        anim = Animation(x=self.target_pos[0],y=self.target_pos[1], duration =.2)
+        anim = Animation(x=abs_x,y=abs_y, duration =.2)
         anim.start(self)
 
 class EyelidImage(Widget):
-    def move_lid(self,y_drop):
-        anim = Animation(size=(self.size[0],-y_drop), duration = 0.1)
+    open_value = BoundedNumericProperty(0, min=0, max=1,errorhandler=lambda x: 1 if x > 1 else 0)
+    
+    def open_lid(self):
+        anim = Animation(size=(self.size[0],-(self.open_value*self.parent.size[1])), duration = 0.1)
         anim.start(self)
+    def close_lid(self):
+        anim = Animation(size=(self.size[0],-self.parent.size[1]), duration = 0.01)
+        anim.start(self)
+        
 
 
 sm = ScreenManager()
@@ -78,8 +88,8 @@ eyescreen = EyeScreen(name='eyes')
 menuscreen = MenuScreen(name='menus')
 
 #eyescreen.bind(mood=moodcallback)
-eyescreen.ids['righteye'].ids['pupil'].target_pos=eyescreen.ids['righteye'].ids['pupil'].pos
-eyescreen.ids['lefteye'].ids['pupil'].target_pos=eyescreen.ids['lefteye'].ids['pupil'].pos
+#eyescreen.ids['righteye'].ids['pupil'].target_pos=eyescreen.ids['righteye'].ids['pupil'].pos
+#eyescreen.ids['lefteye'].ids['pupil'].target_pos=eyescreen.ids['lefteye'].ids['pupil'].pos
 
 sm.add_widget(eyescreen)
 sm.add_widget(menuscreen)

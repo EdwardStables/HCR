@@ -28,25 +28,25 @@
         Button:
             id: upbutton
             text: 'Up'
-            on_press: root.move_look(0,10)
+            on_press: root.move_look(0,0.2)
             size_hint: (.1,.1)
             pos_hint:{"top":1,"right":0.5}
         Button:
             id: rightbutton
             text: 'Right'
-            on_press: root.move_look(10,0)
+            on_press: root.move_look(0.2,0)
             size_hint: (.1,.1)
             pos_hint:{"top":0.5,"right":1}
         Button:
             id: downbutton
             text: 'Down'
-            on_press: root.move_look(0,-10)
+            on_press: root.move_look(0,-0.2)
             size_hint: (.1,.1)
             pos_hint:{"right":0.5}
         Button:
             id: leftbutton
             text: 'Left'
-            on_press: root.move_look(-10,0)
+            on_press: root.move_look(-0.2,0)
             size_hint: (.1,.1)
             pos_hint:{"top":0.5,}
             
@@ -80,11 +80,11 @@
             pos: self.pos
     PupilImage:
         id: pupil
-        pos: (self.parent.x + self.parent.size[0]/2 -self.size[0]/2, root.y)
+        pos: (root.x + root.size[0]/2 -self.size[0]/2, root.y)
     EyelidImage:
         id: lid
-        pos: (self.parent.x,self.parent.y+self.parent.size[1])
-        size:(250,0)
+        pos: (root.x,root.y+root.size[1])
+        size:(root.size[0],0)
 
 <PupilImage>:
     size: (100,100)
@@ -98,7 +98,7 @@
 <EyelidImage>:
     canvas:
         Color:
-            rgb: (0,0,1)
+            rgb: (0,0,0)
         Rectangle:
             size: self.size
             pos: self.pos
