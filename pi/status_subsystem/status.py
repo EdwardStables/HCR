@@ -67,6 +67,15 @@ class status(subsystem):
                 print(i.message)
         self.send_message("face_recog", "pos_unsubscribe", None)
     
+    def face_rel_command(self, wait):
+        self.send_message("face_recog", "rel_subscribe", None)
+        end = time() + wait
+        while time() < end:
+            m = self.get_messages("rel_faces")
+            for i in m:
+                print(i.message)
+        self.send_message("face_recog", "rel_unsubscribe", None)
+        
     def ai_state_command(self, wait):
         self.send_message("ai", "state_update_subscribe", None)
         end = time() + wait
@@ -106,6 +115,12 @@ class interface(Cmd):
         time = get_num_args(arg)
         time = time[0] if time else 5
         self.op.face_pos_command(time)
+
+    def do_face_rel(self, arg):
+        """Start printing the relative position of the largest face in the frame"""
+        time = get_num_args(arg)
+        time = time[0] if time else 5
+        self.op.face_rel_command(time)
 
     def do_ai_state(self, arg):
         """Print the current state of the ai subsystem for arg seconds"""

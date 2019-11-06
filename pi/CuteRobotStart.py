@@ -17,7 +17,7 @@ def main():
     #Define each subsystem
     subsystems = [
         status(),
-        face_recog(ROOT, 4, default_subscribers=[("ai", False)]),
+        face_recog(ROOT, 0, num_sub=["ai"]),
         ai(),
     ]
     
