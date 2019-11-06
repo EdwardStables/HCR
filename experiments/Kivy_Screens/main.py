@@ -16,18 +16,19 @@ class EyeScreen(Screen):
 
     def update_mood(self):      #callback for whenever the text box is updated
         value = self.ids['moodinput']
-        self.mood = value.text
         print('changing mood')
-    
-    def switch_image(self, *args):  #whenever the mood is changed update the screen accordingly
-        eyeimage = self.ids['lefteye']
-        if self.mood < 1.0:
-            anim = Animation(x=300, y=100)
-            anim.start(eyeimage)
+        self.mood = value.text
+
+    def on_mood(self,instance,value):
+        leftlid = self.ids['lefteye'].ids['lid']
+        rightlid= self.ids['righteye'].ids['lid']
+        if value < 1.0:
+            leftlid.move_lid(70)
+            rightlid.move_lid(70)
         else:
-            anim = Animation(x=100, y=100)
-            anim.start(eyeimage)
-            
+            leftlid.move_lid(5)
+            rightlid.move_lid(5)
+
     def move_look(self,x_change,y_change):
         lefteye = self.ids['lefteye']
         righteye = self.ids['righteye']
@@ -76,25 +77,17 @@ class PupilImage(Widget):
         anim = Animation(x=self.target_pos[0],y=self.target_pos[1], duration =.2)
         anim.start(self)
 
-def moodcallback(instance,value):   #callback for whenever the mood is updated
-    right_eye = instance.ids['righteye']
-    left_eye = instance.ids['lefteye']
-    
-    rpupil = right_eye.ids['pupil']
-    lpupil = left_eye.ids['pupil']
-    
-    reye_y = right_eye.y
-    leye_y = left_eye.y
-    
-    rpupil.move_pupil(value,reye_y)
-    lpupil.move_pupil(value,leye_y)
+class EyelidImage(Widget):
+    def move_lid(self,y_drop):
+        anim = Animation(size=(self.size[0],-y_drop), duration = 0.1)
+        anim.start(self)
 
 
 sm = ScreenManager()
 eyescreen = EyeScreen(name='eyes')
 menuscreen = MenuScreen(name='menus')
 
-eyescreen.bind(mood=moodcallback)
+#eyescreen.bind(mood=moodcallback)
 eyescreen.ids['righteye'].ids['pupil'].target_pos=eyescreen.ids['righteye'].ids['pupil'].pos
 eyescreen.ids['lefteye'].ids['pupil'].target_pos=eyescreen.ids['lefteye'].ids['pupil'].pos
 

@@ -80,11 +80,25 @@
     PupilImage:
         id: pupil
         pos: (root.x + 75, root.y)
+    EyelidImage:
+        id: lid
+        pos: (root.x,root.y+350)
+        size:(250,-10)
 
 <PupilImage>:
+    size: (100,100)
     canvas:
         Color:
-            rgb: (1,0,0)
+            rgb: (0,0,0)
         Ellipse:
-            size: (100,100)
+            size: self.size
             pos: self.pos
+
+<EyelidImage>:
+    canvas:
+        Color:
+            rgb: (0,0,0)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+        
