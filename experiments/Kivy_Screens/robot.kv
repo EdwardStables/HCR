@@ -11,11 +11,11 @@
         EyeImage:
             id: lefteye
             pos: (100,125)
-            size: (250,350)
+            size:(250,350)
         EyeImage:
             id: righteye
             pos: (450,125)
-            size: (250,350)
+            size:(250,350)
         Button:
             id: menubutton
             text: 'Go to Menu'
@@ -70,20 +70,21 @@
             text: 'Some Option'
 
 <EyeImage>:
+    size_hint: (None,None)
     size: (250,350)
     canvas:
         Color:
             rgb:(1,1,1)
         Ellipse:
+            size: self.size
             pos: self.pos
-            size: (250,350)
     PupilImage:
         id: pupil
-        pos: (root.x + 75, root.y)
+        pos: (self.parent.x + self.parent.size[0]/2 -self.size[0]/2, root.y)
     EyelidImage:
         id: lid
-        pos: (root.x,root.y+350)
-        size:(250,-10)
+        pos: (self.parent.x,self.parent.y+self.parent.size[1])
+        size:(250,0)
 
 <PupilImage>:
     size: (100,100)
@@ -97,7 +98,7 @@
 <EyelidImage>:
     canvas:
         Color:
-            rgb: (0,0,0)
+            rgb: (0,0,1)
         Rectangle:
             size: self.size
             pos: self.pos

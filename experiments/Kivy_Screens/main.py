@@ -16,18 +16,17 @@ class EyeScreen(Screen):
 
     def update_mood(self):      #callback for whenever the text box is updated
         value = self.ids['moodinput']
-        print('changing mood')
         self.mood = value.text
 
     def on_mood(self,instance,value):
         leftlid = self.ids['lefteye'].ids['lid']
         rightlid= self.ids['righteye'].ids['lid']
         if value < 1.0:
-            leftlid.move_lid(70)
-            rightlid.move_lid(70)
+            leftlid.move_lid(100)
+            rightlid.move_lid(100)
         else:
-            leftlid.move_lid(5)
-            rightlid.move_lid(5)
+            leftlid.move_lid(0)
+            rightlid.move_lid(0)
 
     def move_look(self,x_change,y_change):
         lefteye = self.ids['lefteye']
@@ -35,13 +34,11 @@ class EyeScreen(Screen):
         
         lpupil = lefteye.ids['pupil']
         rpupil = righteye.ids['pupil']
-        
-        lpupil.target_pos[0] += x_change
-        lpupil.target_pos[1] += y_change
-        
-        rpupil.target_pos[0] += x_change
-        rpupil.target_pos[1] += y_change
-        
+
+        lpupil.target_add(x_change,y_change)
+        rpupil.target_add(x_change,y_change)
+    
+    
 class MenuScreen(Screen):
     pass
 
@@ -53,18 +50,11 @@ class PupilImage(Widget):
     ty = NumericProperty()
     target_pos = ReferenceListProperty(tx,ty)
 
-    def move_pupil(self,value,eyepos):
-        if value < 1.0:
-            newy = eyepos +50
-            anim = Animation(x=self.x, y=newy, duration = .2)
-            anim.start(self)
-        else:
-            newy = eyepos
-            anim = Animation(x=self.x, y=newy, duration = .2)
-            anim.start(self)
-
+    def target_add(self,x_change,y_change):
+        self.target_pos[0] += x_change
+        self.target_pos[1] += y_change
+    
     def on_target_pos(self,instance,value):
-        print(self.parent.id)
         if value[0] < self.parent.x:
             self.target_pos[0] = self.parent.x
         elif value[0] > self.parent.x +150:
