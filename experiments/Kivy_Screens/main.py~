@@ -26,8 +26,8 @@ class EyeScreen(Screen):
         leftlid.open_value=value
         rightlid.open_value=value
 
-        leftlid.open_lid()
-        rightlid.open_lid()
+        leftlid.openlid()
+        rightlid.openlid()
 
     def move_look(self,x_change,y_change):
         lefteye = self.ids['lefteye']
