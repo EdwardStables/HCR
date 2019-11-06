@@ -29,7 +29,7 @@ class ai(subsystem):
             self.robot.event()
             new_state = self.robot.state
             if self.last_state != new_state:
-                print("state update:", new_state)
+                #print("state update:", new_state)
                 self.last_state = new_state
                 self.send_state_update(new_state)
 
@@ -39,12 +39,12 @@ class ai(subsystem):
         num_faces = self.get_messages(ref="num_faces")
         num_faces = num_faces[0] if len(num_faces) else []
         
-        if self.last_face_number != num_faces.message:
-            print("Number of faces:", num_faces.message)
+        if num_faces and self.last_face_number != num_faces.message:
+            #print("Number of faces:", num_faces.message)
             self.last_face_number = num_faces.message
 
         
-        self.robot.flags.person = bool(num_faces.message)
+        self.robot.flags.person = bool(num_faces)
 
         #Add processing for the rest of the flags here...
 
