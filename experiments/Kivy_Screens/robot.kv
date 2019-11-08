@@ -10,12 +10,12 @@
                 size: self.size
         EyeImage:
             id: lefteye
-            pos: (100,125)
-            size:(250,350)
+            pos: (root.size[0]/8,root.size[1]/4.8)
+            size:(root.size[0]/3.2,root.size[1]/1.71)
         EyeImage:
             id: righteye
-            pos: (450,125)
-            size:(250,350)
+            pos: (root.size[0]/1.78,root.size[1]/4.8)
+            size:(root.size[0]/3.2,root.size[1]/1.71)
         Button:
             id: menubutton
             text: 'Go to Menu'
@@ -48,16 +48,18 @@
             text: 'Left'
             on_press: root.move_look(-0.2,0)
             size_hint: (.1,.1)
-            pos_hint:{"top":0.5,}
-            
-	Slider:
-	    id:slider
-	    min:0
-	    max:1
-	    step:0.01
-	    orientation: 'vertical'
-	    on_value: root.mood = slider.value
+            pos_hint:{"top":0.5,"right":0.1}
 
+    BoxLayout:
+        size_hint_x: 0.1
+	    Slider:
+	    	id:slider
+	    	backgroundwidth: 10
+	    	min:0
+	    	max:1
+	    	step:0.01
+	    	orientation: 'vertical'
+	    	on_value: root.mood = slider.value
 
 <MenuScreen>:
     BoxLayout:
@@ -89,7 +91,7 @@
         size:(root.size[0],0)
 
 <PupilImage>:
-    size: (100,100)
+    size: (self.parent.size[0]/2.5,self.parent.size[0]/2.5)
     canvas:
         Color:
             rgb: (0,0,0)

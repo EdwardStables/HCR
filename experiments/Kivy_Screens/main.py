@@ -82,7 +82,7 @@ class EyelidImage(Widget):
 sm = ScreenManager()
 eyescreen = EyeScreen(name='eyes')
 menuscreen = MenuScreen(name='menus')
-
+print(str(sm.size))
 #eyescreen.bind(mood=moodcallback)
 #eyescreen.ids['righteye'].ids['pupil'].target_pos=eyescreen.ids['righteye'].ids['pupil'].pos
 #eyescreen.ids['lefteye'].ids['pupil'].target_pos=eyescreen.ids['lefteye'].ids['pupil'].pos

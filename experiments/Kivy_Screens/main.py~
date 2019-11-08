@@ -26,8 +26,8 @@ class EyeScreen(Screen):
         leftlid.open_value=value
         rightlid.open_value=value
 
-        leftlid.openlid()
-        rightlid.openlid()
+        leftlid.open_lid()
+        rightlid.open_lid()
 
     def move_look(self,x_change,y_change):
         lefteye = self.ids['lefteye']
@@ -82,7 +82,7 @@ class EyelidImage(Widget):
 sm = ScreenManager()
 eyescreen = EyeScreen(name='eyes')
 menuscreen = MenuScreen(name='menus')
-
+print(str(eyescreen.size))
 #eyescreen.bind(mood=moodcallback)
 #eyescreen.ids['righteye'].ids['pupil'].target_pos=eyescreen.ids['righteye'].ids['pupil'].pos
 #eyescreen.ids['lefteye'].ids['pupil'].target_pos=eyescreen.ids['lefteye'].ids['pupil'].pos
