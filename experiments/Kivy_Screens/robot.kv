@@ -24,6 +24,14 @@
                 root.manager.current = 'menus'
             size_hint: (.1,.1)
             pos_hint:{"right":1,"top":1}
+        Button:
+            id: votingbutton
+            text: 'Go to vote screen'
+            on_press:
+                root.manager.transition.direction = 'up'
+                root.manager.current = 'voting'
+            size_hint: (.1,.1)
+            pos_hint:{"left":1,"top":1}
             
         Button:
             id: upbutton
@@ -52,6 +60,7 @@
 
     BoxLayout:
         size_hint_x: 0.1
+        size_hint_y: 0.4
 	    Slider:
 	    	id:slider
 	    	backgroundwidth: 10
@@ -72,6 +81,52 @@
         Button:
             id: randombutton
             text: 'Some Option'
+
+<VotingScreen>:
+    BoxLayout:
+        size_hint_y: 0.2
+        pos_hint:{'top':1}
+        Label:
+            text: "How was your experience today?"
+            pos_hint: {'top':1}
+    BoxLayout:
+        size_hint_y: 0.8
+        pos_hint: {'bottom':1}
+        Button:
+            id: button1
+            text: '1'
+            on_press:
+                root.pass_reaction(1)
+                root.manager.transition.direction='down'
+                root.manager.current = 'eyes'
+        Button:
+            id: button2
+            text: '2'
+            on_press:
+                root.pass_reaction(2)
+                root.manager.transition.direction='down'
+                root.manager.current = 'eyes'
+        Button:
+            id: button3
+            text: '3'
+            on_press:
+                root.pass_reaction(3)
+                root.manager.transition.direction='down'
+                root.manager.current = 'eyes'
+        Button:
+            id: button4
+            text: '4'
+            on_press:
+                root.pass_reaction(4)
+                root.manager.transition.direction='down'
+                root.manager.current = 'eyes'
+        Button:
+            id: button5
+            text: '5'
+            on_press:
+                root.pass_reaction(5)
+                root.manager.transition.direction='down'
+                root.manager.current = 'eyes'
 
 <EyeImage>:
     size_hint: (None,None)

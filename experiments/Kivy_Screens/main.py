@@ -10,10 +10,15 @@ from kivy.animation import Animation
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, ReferenceListProperty, BoundedNumericProperty
 
+from kivy.config import Config
+
 Builder.load_file('robot.kv')
 
+Config.set('graphics', 'width', '480')
+Config.set('graphics', 'height','320')
+
 class EyeScreen(Screen):
-    mood = NumericProperty(1.0) #parameter for updating mood displayed by robot
+    mood = NumericProperty(0.0) #parameter for updating mood displayed by robot
 
     def update_mood(self):      #callback for whenever the text box is updated
         value = self.ids['moodinput']
@@ -42,10 +47,6 @@ class EyeScreen(Screen):
     def set_look(self,x_target,y_target): #give input as a value betewen 0 and 1 for relative positions
         lpupil.target_set(x_target,y_target)
     
-    
-class MenuScreen(Screen):
-    pass
-
 class EyeImage(Widget):
     pass
 
@@ -78,20 +79,22 @@ class EyelidImage(Widget):
         anim = Animation(size=(self.size[0],-self.parent.size[1]), duration = 0.01)
         anim.start(self)
 
+class MenuScreen(Screen):
+    pass
+
+class VotingScreen(Screen):
+    def pass_reaction(self,reaction):       #placeholder for now, will change later
+        print("user reacted with : "+str(reaction))
 
 sm = ScreenManager()
 eyescreen = EyeScreen(name='eyes')
 menuscreen = MenuScreen(name='menus')
+votingscreen=VotingScreen(name='voting')
 print(str(sm.size))
-#eyescreen.bind(mood=moodcallback)
-#eyescreen.ids['righteye'].ids['pupil'].target_pos=eyescreen.ids['righteye'].ids['pupil'].pos
-#eyescreen.ids['lefteye'].ids['pupil'].target_pos=eyescreen.ids['lefteye'].ids['pupil'].pos
 
 sm.add_widget(eyescreen)
 sm.add_widget(menuscreen)
-
-#sm.current = 'menus'
-#eyescreen.mood = 2.0
+sm.add_widget(votingscreen)
 
 class RobotApp(App):
     def build(self):
