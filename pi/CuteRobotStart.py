@@ -10,6 +10,7 @@ from hcrutils.message import mediator
 from status_subsystem.status import status
 from face_recog_subsystem.face_recog import face_recog
 from ai_subsystem.ai import ai
+from screen_subsystem.screen import screen
 
 def main():
     ROOT = os.getcwd()
@@ -17,9 +18,12 @@ def main():
     #Define each subsystem
     subsystems = [
         status(),
-        face_recog(ROOT, 0, num_sub=["ai"]),
+        face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen"]),
         ai(),
+        screen(ROOT),
     ]
+
+    print("Subsystems instantiated.")
     
     #Only launch if all are of the correct type
     for ss in subsystems:
@@ -34,6 +38,8 @@ def main():
             "process" : s,
             "policy" : ss.policy,
         }
+
+    print("Subsystems started.")
 
     process_mediator = mediator(processes)
     process_mediator.start()

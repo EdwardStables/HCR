@@ -36,7 +36,7 @@ class face_recog(subsystem):
         super().__init__("face_recog", "id_only")
 
     def _run(self):
-        self.scan_freq = 1/10
+        self.scan_time = 0.01 
         self.t1 = time()
         self.message_check_countdown = 10
         self.status = "Main Loop"
@@ -51,7 +51,7 @@ class face_recog(subsystem):
         else:
             self.message_check_countdown -= 1
 
-        slp = self.scan_freq - (time() - self.t1)
+        slp = self.scan_time - (time() - self.t1)
         if slp > 0:
             sleep(slp)
         self.t1 = time()
@@ -91,7 +91,7 @@ class face_recog(subsystem):
 
         x=face[0] + (face[2]/2)
         y=face[1] + (face[3]/2)
-        x = round(2*x/self.width - 1, 3)
+        x = -1 * round(2*x/self.width - 1, 3)
         y = round(-2*y/self.height + 1, 3)
 
         return (x, y)
