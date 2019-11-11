@@ -26,6 +26,13 @@ class status(subsystem):
         """
         pass
 
+    def stop(self):
+        print("changing stdin")
+        print(sys.stdin)
+        sys.stdin = sys.__stdin__
+        print(sys.stdin)
+        
+
     def status_command(self):
         """Send a request for all subsystem status values to mediator"""
         self.send_message("all", "get_all_status", None)
@@ -35,19 +42,9 @@ class status(subsystem):
         for m in msg:
             print(m.sender_id, m.message)
 
-
-    def stop_command(self, arg):
-        """Send an exit signal to all subsystems."""
-        if arg == '':
-            self.send_message("all", "stop", None)
-        else:
-            ss = list(set(arg.split())) #cast to set to ensure no repeats
-            if "status" in ss:
-                #ensures status is the last thing to be sent stop
-                ss.remove("status")
-                ss.append("status")
-            for s in ss:
-                self.send_message(s, "stop", None)
+    #def stop_command(self, arg):
+    #    """Send an exit signal to all subsystems."""
+    #    self.send_message("mediator", "stop", None)
 
     def face_count_command(self, wait):
         self.send_message("face_recog", "num_subscribe", None)
@@ -96,13 +93,16 @@ class interface(Cmd):
         self.op.status = "Executing CLI"
         super().__init__()
 
+    def cmdloop(self):
+        super().cmdloop()
+
     def do_status(self, arg):
         """List all active subsystems and their last reported status."""
         self.op.status_command()
 
-    def do_stop(self, arg):
-        """Safely shut down all subsystems and exit"""
-        self.op.stop_command(arg)
+    #def do_stop(self, arg):
+    #    """Safely shut down all subsystems and exit"""
+    #    self.op.stop_command(arg)
 
     def do_face_count(self, arg):
         """Start printing the number of faces seen in frame for arg seconds"""
