@@ -10,12 +10,7 @@ from kivy.animation import Animation
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, ReferenceListProperty, BoundedNumericProperty
 
-from kivy.config import Config
-
 Builder.load_file('robot.kv')
-
-Config.set('graphics', 'width', '480')
-Config.set('graphics', 'height','320')
 
 class EyeScreen(Screen):
     mood = NumericProperty(0.0) #parameter for updating mood displayed by robot
