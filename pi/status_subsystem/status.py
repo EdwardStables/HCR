@@ -42,10 +42,6 @@ class status(subsystem):
         for m in msg:
             print(m.sender_id, m.message)
 
-    #def stop_command(self, arg):
-    #    """Send an exit signal to all subsystems."""
-    #    self.send_message("mediator", "stop", None)
-
     def face_count_command(self, wait):
         self.send_message("face_recog", "num_subscribe", None)
         end = time() + wait
@@ -91,6 +87,8 @@ class interface(Cmd):
     def __init__(self, operator):
         self.op = operator
         self.op.status = "Executing CLI"
+        self.set_reciever = None
+        self.default_prompt = '> '
         super().__init__()
 
     def cmdloop(self):
@@ -99,10 +97,6 @@ class interface(Cmd):
     def do_status(self, arg):
         """List all active subsystems and their last reported status."""
         self.op.status_command()
-
-    #def do_stop(self, arg):
-    #    """Safely shut down all subsystems and exit"""
-    #    self.op.stop_command(arg)
 
     def do_face_count(self, arg):
         """Start printing the number of faces seen in frame for arg seconds"""
@@ -113,31 +107,57 @@ class interface(Cmd):
     def do_face_pos(self, arg):
         """Start printing the number of faces seen in frame for arg seconds"""
         time = get_num_args(arg)
-        time = time[0] if time else 5
+        time = int(time[0]) if time else 5
         self.op.face_pos_command(time)
 
     def do_face_rel(self, arg):
         """Start printing the relative position of the largest face in the frame"""
         time = get_num_args(arg)
-        time = time[0] if time else 5
+        time = int(time[0]) if time else 5
         self.op.face_rel_command(time)
 
     def do_ai_state(self, arg):
         """Print the current state of the ai subsystem for arg seconds"""
         time = get_num_args(arg)
-        time = time[0] if time else 5
+        time = int(time[0]) if time else 5
         self.op.ai_state_command(time)
+
+    def do_message(self, arg):
+        """Send a custom message to a subsystem. Number of args denotes operation:
+        0: Reset the default target and clear prompt
+        1: Set default target and set in prompt
+        2: Send the default target message with ref arg[0] and body arg[1].
+           (Raises error if used without a default being set)
+        3: Send target arg[0] message with ref arg[1] and body arg[2]
+        """
+        args = get_num_args(arg)
+        num = len(args)
+        if num == 0:
+            self.prompt = self.default_prompt
+            self.set_reciever = None
+            return
+        elif num == 1:
+            self.prompt = "(" + args[0] + ")>"
+            self.set_reciever = [0]
+            return
+        elif num == 2:
+            if self.set_reciever == None:
+                print("Error in command: No receiver set")
+                return
+            self.op.send_message(self.set_reciever, args[0], args[1])
+        if num == 3:
+            self.op.send_message(args[0], args[1], args[2])
 
 
 def get_num_args(arg):
     args = arg.split()
-    time = []
+    vals = []
     for a in args:
         try:
-            time.append(int(a))
+            vals.append(a)
         except:
             continue
-    return time
+    return vals 
 
     
 
