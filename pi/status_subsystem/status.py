@@ -20,19 +20,6 @@ class status(subsystem):
         sys.stdin = open(0)
         interface(self).cmdloop()         
 
-    def check_messages(self):
-        """Status is a special case that doesn't check
-        messages in a main loop.
-        """
-        pass
-
-    def stop(self):
-        print("changing stdin")
-        print(sys.stdin)
-        sys.stdin = sys.__stdin__
-        print(sys.stdin)
-        
-
     def status_command(self):
         """Send a request for all subsystem status values to mediator"""
         self.send_message("all", "get_all_status", None)
@@ -138,16 +125,25 @@ class interface(Cmd):
             return
         elif num == 1:
             self.prompt = "(" + args[0] + ")>"
-            self.set_reciever = [0]
+            self.set_reciever = args[0]
             return
         elif num == 2:
             if self.set_reciever == None:
                 print("Error in command: No receiver set")
                 return
-            self.op.send_message(self.set_reciever, args[0], args[1])
+            positions = serialize_list(args[1], float)
+            self.op.send_message(self.set_reciever, args[0], positions)
         if num == 3:
-            self.op.send_message(args[0], args[1], args[2])
+            positions = serialize_list(args[2], float)
+            self.op.send_message(args[0], args[1], positions)
 
+def serialize_list(arg, caster=None):
+    vals = arg.split(',')
+    v1 = vals[0][1:]
+    v2 = vals[1][:-1]
+    if caster!=None:
+        return [caster(v1), caster(v2)]
+    return [v1, v2] 
 
 def get_num_args(arg):
     args = arg.split()

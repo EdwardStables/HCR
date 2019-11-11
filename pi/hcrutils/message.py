@@ -24,12 +24,9 @@ class mediator:
         self.status = "Starting"
 
     def start(self):
-        i = 0
         self.status = "Looping"
         while True:
-            i += 1
             self.add_messages()
-            #self.send_greedy()
             self.send_messages() 
 
     def add_messages(self):
@@ -80,23 +77,3 @@ class mediator:
         if ref == "get_all_status":
             reply = messagebody("status", "mediator", self.status, ref="get_all_status_reply")            
             self.messageQueue.append(reply)
-        #elif ref == "stop":
-        #    self.kill_all()
-
-    #def kill_all(self):
-    #    """Sends a message to call the stop function for each subprocess,
-    #    once the function returns it is assumed it is safe to kill.
-    #    """
-    #    print("Trying to end...")
-    #    m = messagebody(None, "mediator", None, "stop")
-    #    for p, v in self.processes.items():
-    #        print("Killing {}...".format(p))
-    #        v["pipe"].send(m)
-    #        sleep(1)
-    #        v["process"].terminate()
-    #        v["process"].join()
-    #        print("Killed {}.".format(p))
-    #    print("All processes joined")
-    #    sys.exit()   
-
-        
