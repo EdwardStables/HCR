@@ -91,7 +91,7 @@ class PupilImage(Widget):
         abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
         abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-self.size[1]) 
         
-        anim = Animation(x=abs_x,y=abs_y, duration =.2)
+        anim = Animation(x=abs_x,y=abs_y, duration =.075)
         anim.start(self)
 
 class EyelidImage(Widget):
