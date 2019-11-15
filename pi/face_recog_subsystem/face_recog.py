@@ -2,6 +2,7 @@ import cv2 as cv
 import sys, time
 from os import path 
 from time import time, sleep
+from collections import deque
 
 from hcrutils.subsystem import subsystem
 from hcrutils.message import messagebody
@@ -30,6 +31,8 @@ class face_recog(subsystem):
         self.width = self.video_capture.get(3)
         self.height = self.video_capture.get(4)
 
+        self.relative_face_buffer= deque(maxlen=5)
+
         self.position_subscribers = pos_sub
         self.number_subscribers = num_sub
         self.relative_subscribers = rel_sub
@@ -51,9 +54,9 @@ class face_recog(subsystem):
         else:
             self.message_check_countdown -= 1
 
-        slp = self.scan_time - (time() - self.t1)
-        if slp > 0:
-            sleep(slp)
+        #slp = self.scan_time - (time() - self.t1)
+        #if slp > 0:
+        #    sleep(slp)
         self.t1 = time()
         
     def main_loop(self):
@@ -94,7 +97,18 @@ class face_recog(subsystem):
         x = -1 * round(2*x/self.width - 1, 3)
         y = round(-2*y/self.height + 1, 3)
 
-        return (x, y)
+        self.relative_face_buffer.append((x,y))
+
+        return self.get_buffer_average()
+
+    def get_buffer_average(self):
+        x = 0
+        y = 0
+        for f in self.relative_face_buffer:
+            x += f[0]
+            y += f[1]
+        return (x/len(self.relative_face_buffer),
+                y/len(self.relative_face_buffer))
 
     def check_messages(self):
         messages = self.get_messages()
