@@ -73,7 +73,9 @@ class PupilImage(Widget):
         self.target_pos[1] += y_change
     
     def on_target_pos(self,instance,value):
-        print('updating pupil pos'+str(value))
+        self.get_abs_pos(self.parent.ids['toplid'].size[1],self.parent.ids['bottomlid'].size[1])
+
+    def get_abs_pos(self,disttop,distbot):
         abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
         abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-self.size[1])
         if(abs_y>self.parent.y+self.parent.size[1]+self.parent.ids['toplid'].size[1]-0.7*self.size[1]):
@@ -84,12 +86,6 @@ class PupilImage(Widget):
         anim = Animation(x=abs_x,y=abs_y, duration =.05)
         anim.start(self)
 
-
-    def check_pos(self,dist):
-        abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
-        abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-0.7*self.size[1]+dist) 
-        anim = Animation(x=abs_x,y=abs_y, duration =.05)
-        anim.start(self)
 
 class TopEyelidImage(Widget):
     open_value = BoundedNumericProperty(0, min=-1, max=1,errorhandler=lambda x: 1 if x > 1 else -1)
