@@ -108,3 +108,16 @@ dmypy.json
 .pyre/
 
 # End of https://www.gitignore.io/api/python
+.vscode/c_cpp_properties.json
+.vscode/arduino.json
+
+
+*.so
+*.pyd
+*.pyc
+*.pyo
+*.py#
+*~
+*.swp
+*.DS_Store
+*.kpf

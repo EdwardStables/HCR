@@ -1,5 +1,7 @@
 from multiprocessing import Pipe, Process
 from collections import deque
+import sys
+from time import sleep
 
 
 class messagebody:
@@ -22,12 +24,9 @@ class mediator:
         self.status = "Starting"
 
     def start(self):
-        i = 0
         self.status = "Looping"
         while True:
-            i += 1
             self.add_messages()
-            #self.send_greedy()
             self.send_messages() 
 
     def add_messages(self):

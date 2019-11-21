@@ -1,3 +1,9 @@
+from hcrutils.subsystem import subsystem
+from hcrutils.message import messagebody
+
+from os import path
+from functools import partial
+
 from kivy.app import App
 
 from kivy.uix.widget import Widget
@@ -8,14 +14,26 @@ from kivy.uix.slider import Slider
 from kivy.graphics import Rectangle, Color, Ellipse
 from kivy.animation import Animation
 from kivy.lang import Builder
+from kivy.clock import Clock
 from kivy.properties import NumericProperty, ReferenceListProperty, BoundedNumericProperty
 
 from kivy.config import Config
 
-Builder.load_file('robot.kv')
 
-Config.set('graphics', 'width', '480')
-Config.set('graphics', 'height','320')
+class screen(subsystem):
+
+    def __init__(self, root_path):
+        super().__init__("screen", "id_only")
+        self.root_path = root_path
+
+    def _run(self):
+        Builder.load_file(path.join(self.root_path, 'screen_subsystem/robot.kv'))
+
+        Config.set('graphics', 'width', '480')
+        Config.set('graphics', 'height','320')
+
+        RobotApp(self).run()
+
 
 class EyeScreen(Screen):
     mood = NumericProperty(0.0) #parameter for updating mood displayed by robot
@@ -45,7 +63,13 @@ class EyeScreen(Screen):
         rpupil.target_add(x_change,y_change)
 
     def set_look(self,x_target,y_target): #give input as a value betewen 0 and 1 for relative positions
+        x_target = round(x_target, 2)
+        y_target = round(y_target, 2)
+        lpupil = self.ids['lefteye'].ids['pupil']
+        rpupil = self.ids['righteye'].ids['pupil']
+
         lpupil.target_set(x_target,y_target)
+        rpupil.target_set(x_target,y_target)
     
 class EyeImage(Widget):
     pass
@@ -58,15 +82,17 @@ class PupilImage(Widget):
     def target_add(self,x_change,y_change):
         self.target_pos[0] += x_change
         self.target_pos[1] += y_change
+
+    def target_set(self,x_target,y_target):
+        self.target_pos[0] = x_target
+        self.target_pos[1] = y_target
     
     def on_target_pos(self,instance,value):
-        print('updating pupil pos'+str(value))
-        print(str(self.parent.y)+','+str(self.target_pos[0])+','+str(self.size[0]))
         abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
         abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-self.size[1]) 
-        print(str(abs_x) + "," + str(abs_y))
         
-        anim = Animation(x=abs_x,y=abs_y, duration =.2)
+        anim = Animation(x=abs_x,y=abs_y, duration =.075)
+        anim.cancel(self)
         anim.start(self)
 
 class EyelidImage(Widget):
@@ -83,23 +109,38 @@ class MenuScreen(Screen):
     pass
 
 class VotingScreen(Screen):
-    def pass_reaction(self,reaction):       #placeholder for now, will change later
-        print("user reacted with : "+str(reaction))
-
-sm = ScreenManager()
-eyescreen = EyeScreen(name='eyes')
-menuscreen = MenuScreen(name='menus')
-votingscreen=VotingScreen(name='voting')
-print(str(sm.size))
-
-sm.add_widget(eyescreen)
-sm.add_widget(menuscreen)
-sm.add_widget(votingscreen)
+    def pass_reaction(self,reaction):       
+        #placeholder for now, will change later
+        pass
 
 class RobotApp(App):
+    def __init__(self, op):
+        self.op = op
+        super().__init__()
+
+    @staticmethod
+    def message_callback(ref, *largs):
+        #Returns the normalized position of the largest face 
+        eye_pos = ref.op.get_messages("rel_faces")
+        if eye_pos:
+            p = eye_pos[0].message
+            ref.eyescreen.set_look(float(p[0]), float(p[1]))
+
+        #Add more in the same way...
+
     def build(self):
+        sm = ScreenManager()
+        self.eyescreen = EyeScreen(name='eyes')
+        self.menuscreen = MenuScreen(name='menus')
+        self.votingscreen=VotingScreen(name='voting')
+
+        sm.add_widget(self.eyescreen)
+        sm.add_widget(self.menuscreen)
+        sm.add_widget(self.votingscreen)
+
+        message_event = Clock.schedule_interval(
+            partial(self.message_callback, self), 0.01)
+
         return sm
 
-if __name__ == '__main__':
-    RobotApp().run()
 

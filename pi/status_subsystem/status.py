@@ -20,12 +20,6 @@ class status(subsystem):
         sys.stdin = open(0)
         interface(self).cmdloop()         
 
-    def check_messages(self):
-        """Status is a special case that doesn't check
-        messages in a main loop.
-        """
-        pass
-
     def status_command(self):
         """Send a request for all subsystem status values to mediator"""
         self.send_message("all", "get_all_status", None)
@@ -34,20 +28,6 @@ class status(subsystem):
 
         for m in msg:
             print(m.sender_id, m.message)
-
-
-    def stop_command(self, arg):
-        """Send an exit signal to all subsystems."""
-        if arg == '':
-            self.send_message("all", "stop", None)
-        else:
-            ss = list(set(arg.split())) #cast to set to ensure no repeats
-            if "status" in ss:
-                #ensures status is the last thing to be sent stop
-                ss.remove("status")
-                ss.append("status")
-            for s in ss:
-                self.send_message(s, "stop", None)
 
     def face_count_command(self, wait):
         self.send_message("face_recog", "num_subscribe", None)
@@ -67,6 +47,15 @@ class status(subsystem):
                 print(i.message)
         self.send_message("face_recog", "pos_unsubscribe", None)
     
+    def face_rel_command(self, wait):
+        self.send_message("face_recog", "rel_subscribe", None)
+        end = time() + wait
+        while time() < end:
+            m = self.get_messages("rel_faces")
+            for i in m:
+                print(i.message)
+        self.send_message("face_recog", "rel_unsubscribe", None)
+        
     def ai_state_command(self, wait):
         self.send_message("ai", "state_update_subscribe", None)
         end = time() + wait
@@ -85,15 +74,16 @@ class interface(Cmd):
     def __init__(self, operator):
         self.op = operator
         self.op.status = "Executing CLI"
+        self.set_reciever = None
+        self.default_prompt = '> '
         super().__init__()
+
+    def cmdloop(self):
+        super().cmdloop()
 
     def do_status(self, arg):
         """List all active subsystems and their last reported status."""
         self.op.status_command()
-
-    def do_stop(self, arg):
-        """Safely shut down all subsystems and exit"""
-        self.op.stop_command(arg)
 
     def do_face_count(self, arg):
         """Start printing the number of faces seen in frame for arg seconds"""
@@ -104,25 +94,66 @@ class interface(Cmd):
     def do_face_pos(self, arg):
         """Start printing the number of faces seen in frame for arg seconds"""
         time = get_num_args(arg)
-        time = time[0] if time else 5
+        time = int(time[0]) if time else 5
         self.op.face_pos_command(time)
+
+    def do_face_rel(self, arg):
+        """Start printing the relative position of the largest face in the frame"""
+        time = get_num_args(arg)
+        time = int(time[0]) if time else 5
+        self.op.face_rel_command(time)
 
     def do_ai_state(self, arg):
         """Print the current state of the ai subsystem for arg seconds"""
         time = get_num_args(arg)
-        time = time[0] if time else 5
+        time = int(time[0]) if time else 5
         self.op.ai_state_command(time)
 
+    def do_message(self, arg):
+        """Send a custom message to a subsystem. Number of args denotes operation:
+        0: Reset the default target and clear prompt
+        1: Set default target and set in prompt
+        2: Send the default target message with ref arg[0] and body arg[1].
+           (Raises error if used without a default being set)
+        3: Send target arg[0] message with ref arg[1] and body arg[2]
+        """
+        args = get_num_args(arg)
+        num = len(args)
+        if num == 0:
+            self.prompt = self.default_prompt
+            self.set_reciever = None
+            return
+        elif num == 1:
+            self.prompt = "(" + args[0] + ")>"
+            self.set_reciever = args[0]
+            return
+        elif num == 2:
+            if self.set_reciever == None:
+                print("Error in command: No receiver set")
+                return
+            positions = serialize_list(args[1], float)
+            self.op.send_message(self.set_reciever, args[0], positions)
+        if num == 3:
+            positions = serialize_list(args[2], float)
+            self.op.send_message(args[0], args[1], positions)
+
+def serialize_list(arg, caster=None):
+    vals = arg.split(',')
+    v1 = vals[0][1:]
+    v2 = vals[1][:-1]
+    if caster!=None:
+        return [caster(v1), caster(v2)]
+    return [v1, v2] 
 
 def get_num_args(arg):
     args = arg.split()
-    time = []
+    vals = []
     for a in args:
         try:
-            time.append(int(a))
+            vals.append(a)
         except:
             continue
-    return time
+    return vals 
 
     
 

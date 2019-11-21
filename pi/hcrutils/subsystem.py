@@ -38,7 +38,7 @@ class subsystem:
         Executes general messages (stop, status, etc.)
         """
         while True:
-            sleep(0.1) #only run every few seconds.
+            sleep(0.01) #only run every few seconds.
             with self.message_lock, self.pipe_lock: #Lock while writing 
                 while self.pipe.poll(): #while there are messages in the pipe
                     msg = self.pipe.recv()
@@ -119,6 +119,3 @@ class subsystem:
         p.start()
         self.status = "Started"
         return pipe_b, p, self.ID
-
-    def stop(self):
-        print("Stop:", self.ID)

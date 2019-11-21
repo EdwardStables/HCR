@@ -9,7 +9,7 @@ cascPath = path.join(root, "util_file/haarcascade_frontalface_default.xml")
 faceCascade = cv2.CascadeClassifier(cascPath)
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-video_capture = cv2.VideoCapture(0)
+video_capture = cv2.VideoCapture(4)
 #video_capture = cv2.VideoCapture(path.join(root, 'util_file/mock_the_week.mp4'))
 
 while True:

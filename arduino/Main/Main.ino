@@ -16,6 +16,7 @@ void setup() {
 
 void loop() {
   
+  // Setup JSON input, 1024 bytes
   StaticJsonDocument<1024> doc;
   String inData;
   //char json[48];
@@ -70,12 +71,15 @@ void loop() {
 }
 
 void changeState(int state) {
-  
+  // Function to change LED to indicate current state (not written yet)
+  Serial.print("State changed to state ");
+  Serial.println(state);
 }
 
 void makeMoves(float moves[][6], int arraySize) {
   static Vector trans;
   static Vector rotat;
+  // Loops through moves Array and applies moves
   for (int i = 0; i < arraySize; i++) {
     trans.x = moves[i][0];
     trans.y = moves[i][1];
@@ -90,7 +94,9 @@ void makeMoves(float moves[][6], int arraySize) {
     Serial.println(rotat.y);
     Serial.println(rotat.z);
     
+    // Jack may need to alter the library so that this single instruction executes the movement at the correct speed
     Platform.applyTranslationAndRotation(trans, rotat);
+    // Checks if new instruction is available IE interrupts
     if (Serial.available() > 0) {
       loop();
     }
@@ -101,7 +107,7 @@ void makeMoves(float moves[][6], int arraySize) {
 
 void applyOffset(int offset[2]) {
   int tx, ty, tz, rx, ry, rz;
-  // convert offset to xyz xyz
+  // Offset needs converting to xyz xyz
   static Vector trans;
   static Vector rotat;
   trans.x = tx;
@@ -116,11 +122,12 @@ void applyOffset(int offset[2]) {
 void reset() {
   static Vector trans;
   static Vector rotat;
+  // These values need calibrating I think
   trans.x = 0;
   trans.y = 0;
   trans.z = 0;
-  rotat.x = 0;
-  rotat.y = 0;
-  rotat.z = 0;
+  rotat.x = pi / 4;
+  rotat.y = pi / 4;
+  rotat.z = pi / 4;
   Platform.applyTranslationAndRotation(trans, rotat);
 }
