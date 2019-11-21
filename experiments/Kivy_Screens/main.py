@@ -45,6 +45,13 @@ class EyeScreen(Screen):
         rpupil.target_add(x_change,y_change)
 
     def set_look(self,x_target,y_target): #give input as a value betewen 0 and 1 for relative positions
+        lefteye = self.ids['lefteye']
+        righteye = self.ids['righteye']
+        
+        lpupil = lefteye.ids['pupil']
+        rpupil = righteye.ids['pupil']
+
+        rpupil.target_set(x_target,y_target)
         lpupil.target_set(x_target,y_target)
     
 class EyeImage(Widget):
@@ -81,7 +88,7 @@ class EyelidImage(Widget):
     def open_lid(self):
         dist = -(self.open_value*self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0])
         self.parent.ids['pupil'].check_pos(dist)
-        anim = Animation(size=(self.size[0],dist), duration = 0.1)
+        anim = Animation(size=(self.size[0],dist), duration = 0.01)
         anim.start(self)
     def close_lid(self):
         anim = Animation(size=(self.size[0],-self.parent.size[1]), duration = 0.01)
