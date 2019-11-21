@@ -27,12 +27,18 @@ class EyeScreen(Screen):
     def on_mood(self,instance,value):   # put whatever happens on mood change here
         lefttoplid = self.ids['lefteye'].ids['toplid']
         righttoplid= self.ids['righteye'].ids['toplid']
+        leftbotlid = self.ids['lefteye'].ids['bottomlid']
+        rightbotlid= self.ids['righteye'].ids['bottomlid']
 
         lefttoplid.open_value=value
         righttoplid.open_value=value
+        leftbotlid.open_value=value
+        rightbotlid.open_value=value
 
         lefttoplid.open_lid()
         righttoplid.open_lid()
+        leftbotlid.open_lid()
+        rightbotlid.open_lid()
 
     def move_look(self,x_change,y_change):
         lefteye = self.ids['lefteye']
@@ -68,9 +74,12 @@ class PupilImage(Widget):
     
     def on_target_pos(self,instance,value):
         print('updating pupil pos'+str(value))
-        print(str(self.parent.y)+','+str(self.target_pos[0])+','+str(self.size[0]))
         abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
-        abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-0.7*self.size[1]+self.parent.ids['toplid'].size[1]) 
+        abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-self.size[1])
+        if(abs_y>self.parent.y+self.parent.size[1]+self.parent.ids['toplid'].size[1]-0.7*self.size[1]):
+            abs_y=self.parent.y+self.parent.size[1]+self.parent.ids['toplid'].size[1]-0.7*self.size[1]
+        elif (abs_y<self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]):
+            abs_y=self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]
         print(str(abs_x) + "," + str(abs_y))
         anim = Animation(x=abs_x,y=abs_y, duration =.05)
         anim.start(self)
@@ -87,7 +96,7 @@ class TopEyelidImage(Widget):
     
     def open_lid(self):
         dist = -(self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
-        self.parent.ids['pupil'].check_pos(dist)
+        #self.parent.ids['pupil'].check_pos(dist)
         anim = Animation(size=(self.size[0],dist), duration = 0.01)
         anim.start(self)
 
@@ -99,8 +108,8 @@ class BotEyelidImage(Widget):
     open_value = BoundedNumericProperty(0, min=-1, max=1,errorhandler=lambda x: 1 if x > 1 else -1)
     
     def open_lid(self):
-        dist = (0.5*self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
-        self.parent.ids['pupil'].check_pos(dist)
+        dist = -(0.5*self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
+        #self.parent.ids['pupil'].check_pos(dist)
         anim = Animation(size=(self.size[0],dist), duration = 0.01)
         anim.start(self)
 
