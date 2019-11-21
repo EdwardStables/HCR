@@ -30,7 +30,7 @@ void loop() {
 
     inData.toCharArray(json, 48);*/
     //char json[] = "{\"instr\":1, \"moves\":[[50, 50, 50, 0, 0, 0]]}";
-    char json[] = "{\"instr\":1,\"moves\":[[50,50,50,0,0,0],[0,0,0,0,0,0]]}";
+    char json[] = "{\"instr\":1,\"state\":0,\"moves\":[[50,50,50,0,0,0],[0,0,0,0,0,0]]}";
     // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, json);
 
@@ -41,8 +41,8 @@ void loop() {
       return;
     }
 
-    //int state = doc["state"];
-    //changeState(state);
+    int state = doc["state"];
+    changeState(state);
   
     int instr = doc["instr"];
     switch (instr) {
@@ -122,12 +122,11 @@ void applyOffset(int offset[2]) {
 void reset() {
   static Vector trans;
   static Vector rotat;
-  // These values need calibrating I think
   trans.x = 0;
   trans.y = 0;
   trans.z = 0;
-  rotat.x = pi / 4;
-  rotat.y = pi / 4;
-  rotat.z = pi / 4;
+  rotat.x = 0;
+  rotat.y = 0;
+  rotat.z = 0;
   Platform.applyTranslationAndRotation(trans, rotat);
 }
