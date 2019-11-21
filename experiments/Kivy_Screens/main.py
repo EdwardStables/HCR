@@ -63,17 +63,25 @@ class PupilImage(Widget):
         print('updating pupil pos'+str(value))
         print(str(self.parent.y)+','+str(self.target_pos[0])+','+str(self.size[0]))
         abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
-        abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-self.size[1]) 
+        abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-0.7*self.size[1]+self.parent.ids['lid'].size[1]) 
         print(str(abs_x) + "," + str(abs_y))
-        
-        anim = Animation(x=abs_x,y=abs_y, duration =.2)
+        anim = Animation(x=abs_x,y=abs_y, duration =.05)
+        anim.start(self)
+
+
+    def check_pos(self,dist):
+        abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
+        abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-0.7*self.size[1]+dist) 
+        anim = Animation(x=abs_x,y=abs_y, duration =.05)
         anim.start(self)
 
 class EyelidImage(Widget):
     open_value = BoundedNumericProperty(0, min=0, max=1,errorhandler=lambda x: 1 if x > 1 else 0)
     
     def open_lid(self):
-        anim = Animation(size=(self.size[0],-(self.open_value*self.parent.size[1])), duration = 0.1)
+        dist = -(self.open_value*self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0])
+        self.parent.ids['pupil'].check_pos(dist)
+        anim = Animation(size=(self.size[0],dist), duration = 0.1)
         anim.start(self)
     def close_lid(self):
         anim = Animation(size=(self.size[0],-self.parent.size[1]), duration = 0.01)
