@@ -15,23 +15,23 @@ void setup() {
 }
 
 void loop() {
-  
+  //Serial.println("running");
   // Setup JSON input, 1024 bytes
   StaticJsonDocument<1024> doc;
   String inData;
-  //char json[48];
   int offset[2];
-  if (/*Serial.available() > 0*/once == true) {
+  if (Serial.available() > 0) {
     once = false;
-    /*while (Serial.available() > 0) {
+    while (Serial.available() > 0) {
       char received = Serial.read();
       inData += received;
     }
-
-    inData.toCharArray(json, 48);*/
-    //char json[] = "{\"instr\":1, \"moves\":[[50, 50, 50, 0, 0, 0]]}";
-    char json[] = "{\"instr\":1,\"state\":0,\"moves\":[[50,50,50,0,0,0],[0,0,0,0,0,0]]}";
+    Serial.println(inData);
+    char json[inData.length()];
+    inData.toCharArray(json, inData.length());
+    //char json[] = "{\"instr\":1,\"state\":0,\"moves\":[[0,0,40,0,0,0],[0,0,-30,0,0,0]]}";
     // Deserialize the JSON document
+    Serial.println(json);
     DeserializationError error = deserializeJson(doc, json);
 
     // Test if parsing succeeds.
@@ -97,10 +97,10 @@ void makeMoves(float moves[][6], int arraySize) {
     // Jack may need to alter the library so that this single instruction executes the movement at the correct speed
     Platform.applyTranslationAndRotation(trans, rotat);
     // Checks if new instruction is available IE interrupts
-    if (Serial.available() > 0) {
+    /*if (Serial.available() > 0) {
       loop();
-    }
-    delay(10);
+    }*/
+    delay(500);
   }
   loop();
 }
