@@ -83,7 +83,7 @@ class PupilImage(Widget):
         elif (abs_y<self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]):
             abs_y=self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]
         print(str(abs_x) + "," + str(abs_y))
-        anim = Animation(x=abs_x,y=abs_y, duration =.05)
+        anim = Animation(x=abs_x,y=abs_y, duration =.01)
         anim.start(self)
 
 
@@ -92,7 +92,7 @@ class TopEyelidImage(Widget):
     
     def open_lid(self):
         dist = -(self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
-        #self.parent.ids['pupil'].check_pos(dist)
+        self.parent.ids['pupil'].get_abs_pos(dist,self.parent.ids['bottomlid'].size[1])
         anim = Animation(size=(self.size[0],dist), duration = 0.01)
         anim.start(self)
 
@@ -105,7 +105,7 @@ class BotEyelidImage(Widget):
     
     def open_lid(self):
         dist = -(0.5*self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
-        #self.parent.ids['pupil'].check_pos(dist)
+        self.parent.ids['pupil'].get_abs_pos(self.parent.ids['toplid'].size[1],dist)
         anim = Animation(size=(self.size[0],dist), duration = 0.01)
         anim.start(self)
 
