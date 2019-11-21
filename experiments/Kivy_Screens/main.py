@@ -86,7 +86,7 @@ class EyelidImage(Widget):
     open_value = BoundedNumericProperty(0, min=0, max=1,errorhandler=lambda x: 1 if x > 1 else 0)
     
     def open_lid(self):
-        dist = -(self.open_value*self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0])
+        dist = -(self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
         self.parent.ids['pupil'].check_pos(dist)
         anim = Animation(size=(self.size[0],dist), duration = 0.01)
         anim.start(self)
