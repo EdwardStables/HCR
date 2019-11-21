@@ -140,9 +140,13 @@
     PupilImage:
         id: pupil
         pos: (root.x + root.size[0]/2 -self.size[0]/2, root.y)
-    EyelidImage:
-        id: lid
+    TopEyelidImage:
+        id: toplid
         pos: (root.x,root.y+root.size[1])
+        size:(root.size[0],0)
+    BotEyelidImage:
+        id: bottomlid
+        pos: (root.x,root.y)
         size:(root.size[0],0)
 
 <PupilImage>:
@@ -154,11 +158,18 @@
             size: self.size
             pos: self.pos
 
-<EyelidImage>:
+<TopEyelidImage>:
     canvas:
         Color:
             rgb: (0,0,0)
         Rectangle:
             size: self.size
             pos: self.pos
-        
+
+<BotEyelidImage>:
+    canvas:
+        Color:
+            rgb: (0,0,0)
+        Rectangle:
+            size: self.size
+            pos: self.pos
