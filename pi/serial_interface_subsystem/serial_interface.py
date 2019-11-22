@@ -49,12 +49,13 @@ class serial_interface(subsystem):
         ser_msg = json.dumps(msg).encode()
         self.ser.write(ser_msg)
 
-	    msg = {
-            "instr":0
+        msg = {
+            "instr":1,
+            "pattern":0
         }
-	print(msg)
-	ser_msg = json.dumps(msg).encode()
-	self.ser.write(ser_msg)
+        print(msg)
+        ser_msg = json.dumps(msg).encode()
+        self.ser.write(ser_msg)
 
         print("func end")
 
