@@ -13,11 +13,11 @@ class serial_interface(subsystem):
         super().__init__("serial_interface", "id_only")
 
     def _run(self):
-        ser = serial.Serial('/dev/ttyUSB0', 9600) # Establish the connection on a specific port#
+        self.ser = serial.Serial('/dev/ttyACM0', 9600, write_timeout = 1.0) # Establish the connection on a specific port#
         while True:
-            self.send_loop(ser)
+            self.send_loop()
 
-    def send_loop(self, ser):
+    def send_loop(self):
         """Parses and sends movement instructions from other areas of the
         program
 
@@ -25,27 +25,39 @@ class serial_interface(subsystem):
         first element is the instruction type and all other entries are helper
         data.
         """
-        movement = self.get_messages("movement")
-        if len(movement) == 0:
-            return
-        else:
-            movement = movement[-1]
-        
-        msg = {}
-        if movement.message == "reset":
-            msg = self.get_reset()
-        elif movement.message == "move":
-            msg = self.get_moves(movement)
-        elif movement.message == "track":
-            msg = self.get_offset(movement)
-        elif movement.message == "colour":
-            msg = self.get_colour(movement)
-        
+        #movement = self.get_messages("movement")
+        #if len(movement) == 0:
+        #    return
+        #else:
+        #    movement = movement[-1]
+        #
+        #msg = {}
+        #if movement.message == "reset":
+        #    msg = self.get_reset()
+        #elif movement.message == "move":
+        #    msg = self.get_moves(movement)
+        #elif movement.message == "track":
+        #    msg = self.get_offset(movement)
+        #elif movement.message == "colour":
+        #    msg = self.get_colour(movement)
+
         msg = {
             "instr":1,
             "pattern":0
         }
-        ser.write(msg)
+        print(msg)
+        ser_msg = json.dumps(msg).encode()
+        self.ser.write(ser_msg)
+
+	 msg = {
+            "instr":0
+        }
+	print(msg)
+	ser_msg = json.dumps(msg).encode()
+	self.ser.write(ser_msg)
+
+        print("func end")
+
 
     def get_moves(self, movement):
         return {
