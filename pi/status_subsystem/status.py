@@ -139,6 +139,8 @@ class interface(Cmd):
 
 def serialize_list(arg, caster=None):
     vals = arg.split(',')
+    if len(vals) == 1:
+        return vals
     v1 = vals[0][1:]
     v2 = vals[1][:-1]
     if caster!=None:
