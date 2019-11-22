@@ -26,20 +26,25 @@ class serial_interface(subsystem):
         data.
         """
         movement = self.get_messages("movement")
-        if len(movement) > 0:
-            #Send the most recent instruction only
+        if len(movement) == 0:
+            return
+        else:
             movement = movement[-1]
         
         msg = {}
-        if movement[0] == "reset":
+        if movement.message == "reset":
             msg = self.get_reset()
-        elif movement[0] == "move":
+        elif movement.message == "move":
             msg = self.get_moves(movement)
-        elif movement[0] == "track":
+        elif movement.message == "track":
             msg = self.get_offset(movement)
-        elif movement[0] == "colour":
+        elif movement.message == "colour":
             msg = self.get_colour(movement)
         
+        msg = {
+            "instr":1,
+            "pattern":0
+        }
         ser.write(msg)
 
     def get_moves(self, movement):

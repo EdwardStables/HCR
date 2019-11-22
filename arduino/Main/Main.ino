@@ -48,25 +48,25 @@ void loop() {
     switch (instr) {
 
       case 1:
-      movePattern(doc["pattern"]);
-      break;
+        movePattern(doc["pattern"]);
+        break;
 
       case 2:
-      move[6] = doc["move"];
-      makeMove(move);
-      break;
+        move[6] = doc["move"];
+        makeMove(move);
+        break;
 
       case 3:
-      offset[2] = doc["offset"];
-      applyOffset(offset);
-      break;
+        offset[2] = doc["offset"];
+        applyOffset(offset);
+        break;
 
       case 4:
-      changeColour(doc["colour"]);
-      break;
+        changeColour(doc["colour"]);
+        break;
       
       default:
-      reset();
+        reset();
     
     }
   }
@@ -76,22 +76,22 @@ void movePattern(int pattern) {
   Serial.println("movePattern function");
   Serial.print("Pattern ");
   Serial.println(pattern);
-  switch (pattern) {
+  switch (int(pattern)) {
 
-    case int(0):
-    Serial.println("case 0");
-    float dance[][6] = {{0,0,-30,0,0,0}};
-    iterateMoves(dance, 1);
-    break;
+    case 0:
+      Serial.println("case 0");
+      float dance[][6] = {{0,0,-30,0,0,0}};
+      iterateMoves(dance, 1);
+      break;
 
-    case int(1):
-    Serial.println("case 1");
-    float test[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
-    iterateMoves(test, 2);
-    break; 
+    case 1:
+      Serial.println("case 1");
+      float test[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
+      iterateMoves(test, 2);
+      break; 
 
     default:
-    Serial.println("why are you here");
+      Serial.println("why are you here");
     
   }
   Serial.println("how did you get here");
