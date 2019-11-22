@@ -49,7 +49,7 @@ class serial_interface(subsystem):
         ser_msg = json.dumps(msg).encode()
         self.ser.write(ser_msg)
 
-	 msg = {
+	    msg = {
             "instr":0
         }
 	print(msg)
