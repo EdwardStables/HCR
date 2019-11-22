@@ -105,7 +105,7 @@ class PupilImage(Widget):
         elif (abs_y<self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]):
             abs_y=self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]
         print(str(abs_x) + "," + str(abs_y))
-        anim = Animation(x=abs_x,y=abs_y, duration =.01)
+        anim = Animation(x=abs_x,y=abs_y, duration =.1)
         anim.start(self)
 
 class TopEyelidImage(Widget):
