@@ -32,7 +32,7 @@ void loop() {
     Serial.println(inData);
     char json[inData.length()];
     inData.toCharArray(json, inData.length());
-    //char json[] = "{\"instr\":1,\"state\":0,\"moves\":[[0,0,40,0,0,0],[0,0,-30,0,0,0]]}";
+    //char json[] = "{\"instr\":1,\"pattern\":2}";
     // Deserialize the JSON document
     Serial.println(json);
     DeserializationError error = deserializeJson(doc, json);
@@ -67,30 +67,34 @@ void loop() {
       
       default:
       reset();
-      break;
     
     }
   }
 }
 
 void movePattern(int pattern) {
-
+  Serial.println("movePattern function");
+  Serial.print("Pattern ");
+  Serial.println(pattern);
   switch (pattern) {
 
-    case 0:
-    float moves[][6] = {{0,0,-30,0,0,0}};
-    iterateMoves(moves, sizeof(moves));
+    case int(0):
+    Serial.println("case 0");
+    float dance[][6] = {{0,0,-30,0,0,0}};
+    iterateMoves(dance, 1);
     break;
 
-    case 1:
-    float moves[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
-    iterateMoves(moves, sizeof(moves));
+    case int(1):
+    Serial.println("case 1");
+    float test[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
+    iterateMoves(test, 2);
     break; 
 
     default:
-    break;
+    Serial.println("why are you here");
     
   }
+  Serial.println("how did you get here");
 }
 
 void iterateMoves(float moves[][6], int arraySize) {
