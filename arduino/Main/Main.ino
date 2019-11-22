@@ -30,11 +30,11 @@ void loop() {
     }
     
     Serial.println(inData);
-    char json[inData.length()];
-    inData.toCharArray(json, inData.length());
-    //char json[] = "{\"instr\":1,\"pattern\":2}";
-    // Deserialize the JSON document
+    char json[inData.length() + 1];
+    inData.toCharArray(json, inData.length() + 1);
     Serial.println(json);
+    
+    // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, json);
 
     // Test if parsing succeeds.
