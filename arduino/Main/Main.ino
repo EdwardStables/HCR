@@ -15,17 +15,20 @@ void setup() {
 }
 
 void loop() {
-  //Serial.println("running");
   // Setup JSON input, 1024 bytes
   StaticJsonDocument<1024> doc;
   String inData;
-  int offset[2];
+  float offset[2];
+  float move[6];
+  
   if (Serial.available() > 0) {
     once = false;
+    
     while (Serial.available() > 0) {
       char received = Serial.read();
       inData += received;
     }
+    
     Serial.println(inData);
     char json[inData.length()];
     inData.toCharArray(json, inData.length());
@@ -40,28 +43,28 @@ void loop() {
       Serial.println(error.c_str());
       return;
     }
-
-    int state = doc["state"];
-    changeState(state);
   
     int instr = doc["instr"];
     switch (instr) {
 
       case 1:
-      int arraySize = doc["moves"].size();
-      float moves[arraySize][6];
-      for (int x = 0; x < arraySize; x++) {
-        for (int y = 0; y < 6; y++) {
-          moves[x][y] = doc["moves"][x][y];
-        }
-      }
-      makeMoves(moves, arraySize);
+      movePattern(doc["pattern"]);
       break;
 
       case 2:
+      move[6] = doc["move"];
+      makeMove(move);
+      break;
+
+      case 3:
       offset[2] = doc["offset"];
       applyOffset(offset);
+      break;
 
+      case 4:
+      changeColour(doc["colour"]);
+      break;
+      
       default:
       reset();
       break;
@@ -70,13 +73,27 @@ void loop() {
   }
 }
 
-void changeState(int state) {
-  // Function to change LED to indicate current state (not written yet)
-  Serial.print("State changed to state ");
-  Serial.println(state);
+void movePattern(int pattern) {
+
+  switch (pattern) {
+
+    case 0:
+    float moves[][6] = {{0,0,-30,0,0,0}};
+    iterateMoves(moves, sizeof(moves));
+    break;
+
+    case 1:
+    float moves[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
+    iterateMoves(moves, sizeof(moves));
+    break; 
+
+    default:
+    break;
+    
+  }
 }
 
-void makeMoves(float moves[][6], int arraySize) {
+void iterateMoves(float moves[][6], int arraySize) {
   static Vector trans;
   static Vector rotat;
   // Loops through moves Array and applies moves
@@ -94,18 +111,31 @@ void makeMoves(float moves[][6], int arraySize) {
     Serial.println(rotat.y);
     Serial.println(rotat.z);
     
-    // Jack may need to alter the library so that this single instruction executes the movement at the correct speed
     Platform.applyTranslationAndRotation(trans, rotat);
-    // Checks if new instruction is available IE interrupts
-    /*if (Serial.available() > 0) {
-      loop();
-    }*/
     delay(500);
+    
+    // Checks if new instruction is available IE interrupts
+    if (Serial.available() > 0) {
+      loop();
+    }
   }
-  loop();
 }
 
-void applyOffset(int offset[2]) {
+void makeMove(float move[]) {
+  static Vector trans;
+  static Vector rotat;
+  trans.x = move[0];
+  trans.y = move[1];
+  trans.z = move[2];
+  rotat.x = move[3];
+  rotat.y = move[4];
+  rotat.z = move[5];
+  
+  Platform.applyTranslationAndRotation(trans, rotat);
+  delay(500);
+}
+
+void applyOffset(float offset[2]) {
   int tx, ty, tz, rx, ry, rz;
   // Offset needs converting to xyz xyz
   static Vector trans;
@@ -117,6 +147,13 @@ void applyOffset(int offset[2]) {
   rotat.y = ry;
   rotat.z = rz;
   Platform.applyTranslationAndRotation(trans, rotat);
+  delay(500);
+}
+
+void changeColour(String colour) {
+  // some colour change thing
+  Serial.print("Colour changed to: ");
+  Serial.println(colour);
 }
 
 void reset() {
@@ -129,4 +166,5 @@ void reset() {
   rotat.y = 0;
   rotat.z = 0;
   Platform.applyTranslationAndRotation(trans, rotat);
+  delay(500);
 }
