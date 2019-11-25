@@ -50,7 +50,7 @@ class serial_interface(subsystem):
     def get_moves(self, movement):
         return {
             "instr":1,
-            "pattern":0#[movement[1], movement[2]]
+            "pattern":movement.message[1]
             }
 
     def get_offset(self, movement):
