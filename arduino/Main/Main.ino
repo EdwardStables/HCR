@@ -76,7 +76,7 @@ void movePattern(int pattern) {
   Serial.println("movePattern function");
   Serial.print("Pattern ");
   Serial.println(pattern);
-  switch (int(pattern)) {
+  /*switch (int(pattern)) {
 
     case 0:
       Serial.println("case 0");
@@ -92,7 +92,21 @@ void movePattern(int pattern) {
 
     default:
       Serial.println("why are you here");
-    
+      
+  }*/
+
+  if (pattern == 0) {
+    Serial.println("case 0");
+    float dance[][6] = {{0,0,-30,0,0,0}};
+    iterateMoves(dance, 1);
+  } else {
+    if (pattern == 1) {
+      Serial.println("case 1");
+    float test[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
+    iterateMoves(test, 2);
+    } else {
+      Serial.println("why are you here");
+    }
   }
   Serial.println("how did you get here");
 }
