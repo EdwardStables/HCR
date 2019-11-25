@@ -1,7 +1,7 @@
 # stateMachine.py
 
-from .states import *
-from .flags import Flag
+from states import *
+from flags import Flag
 
 class StateMachine(object):
     """ 
