@@ -12,6 +12,7 @@ class ai(subsystem):
         self.state_subs = default_state_subs
         self.loop_time = loop_time
         self.last_face_number = 0
+        self.last_emotion_read = ""
         super().__init__("ai", "id_only")
 
 
@@ -43,9 +44,28 @@ class ai(subsystem):
             #print("Number of faces:", num_faces.message)
             self.last_face_number = num_faces.message
 
-        
         self.robot.flags.person = bool(num_faces)
 
+        # Recieve emotion data
+        emotion = self.get_messages(ref="speech_emotion")
+        emotion = emotion[0] if len(emotion) else []
+
+        print(emotion)
+
+        if emotion != self.last_emotion_read:
+            movement_data = []            
+            if emotion == "happy":
+                movement_data =  ["move", 1]
+            if emotion == "sad":
+                movement_data = ["move", 0]
+            if emotion == "content":
+                movement_data = ["move", 1]
+            if emotion == "thinking":
+                movement_data = ["reset"]
+            
+            self.send_message("serial_interface", "movement", movement_data)
+        
+        
         #Add processing for the rest of the flags here...
 
         #Handle remaining messages
