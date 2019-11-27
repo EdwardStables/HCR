@@ -31,6 +31,7 @@ class screen(subsystem):
 
         Config.set('graphics', 'width', '480')
         Config.set('graphics', 'height','320')
+        Config.set('graphics', 'borderless', '1')
 
         RobotApp(self).run()
 
