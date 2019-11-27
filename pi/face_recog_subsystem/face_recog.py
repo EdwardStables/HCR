@@ -64,7 +64,7 @@ class face_recog(subsystem):
             self.subsys_update()
 
             ret, frame = self.video_capture.read()
-            
+            frame = cv.resize(frame, (640,480))
             gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
             faces = self.faceCascade.detectMultiScale(
                 gray,

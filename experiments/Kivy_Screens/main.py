@@ -25,14 +25,20 @@ class EyeScreen(Screen):
         self.mood = value.text
 
     def on_mood(self,instance,value):   # put whatever happens on mood change here
-        leftlid = self.ids['lefteye'].ids['lid']
-        rightlid= self.ids['righteye'].ids['lid']
-        
-        leftlid.open_value=value
-        rightlid.open_value=value
+        lefttoplid = self.ids['lefteye'].ids['toplid']
+        righttoplid= self.ids['righteye'].ids['toplid']
+        leftbotlid = self.ids['lefteye'].ids['bottomlid']
+        rightbotlid= self.ids['righteye'].ids['bottomlid']
 
-        leftlid.open_lid()
-        rightlid.open_lid()
+        lefttoplid.open_value=value
+        righttoplid.open_value=value
+        leftbotlid.open_value=value
+        rightbotlid.open_value=value
+
+        lefttoplid.open_lid()
+        righttoplid.open_lid()
+        leftbotlid.open_lid()
+        rightbotlid.open_lid()
 
     def move_look(self,x_change,y_change):
         lefteye = self.ids['lefteye']
@@ -45,6 +51,13 @@ class EyeScreen(Screen):
         rpupil.target_add(x_change,y_change)
 
     def set_look(self,x_target,y_target): #give input as a value betewen 0 and 1 for relative positions
+        lefteye = self.ids['lefteye']
+        righteye = self.ids['righteye']
+        
+        lpupil = lefteye.ids['pupil']
+        rpupil = righteye.ids['pupil']
+
+        rpupil.target_set(x_target,y_target)
         lpupil.target_set(x_target,y_target)
     
 class EyeImage(Widget):
@@ -60,21 +73,42 @@ class PupilImage(Widget):
         self.target_pos[1] += y_change
     
     def on_target_pos(self,instance,value):
-        print('updating pupil pos'+str(value))
-        print(str(self.parent.y)+','+str(self.target_pos[0])+','+str(self.size[0]))
+        self.get_abs_pos(self.parent.ids['toplid'].size[1],self.parent.ids['bottomlid'].size[1])
+
+    def get_abs_pos(self,disttop,distbot):
         abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
-        abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-self.size[1]) 
+        abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-self.size[1])
+        if(abs_y>self.parent.y+self.parent.size[1]+self.parent.ids['toplid'].size[1]-0.7*self.size[1]):
+            abs_y=self.parent.y+self.parent.size[1]+self.parent.ids['toplid'].size[1]-0.7*self.size[1]
+        elif (abs_y<self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]):
+            abs_y=self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]
         print(str(abs_x) + "," + str(abs_y))
-        
-        anim = Animation(x=abs_x,y=abs_y, duration =.2)
+        anim = Animation(x=abs_x,y=abs_y, duration =.01)
         anim.start(self)
 
-class EyelidImage(Widget):
-    open_value = BoundedNumericProperty(0, min=0, max=1,errorhandler=lambda x: 1 if x > 1 else 0)
+
+class TopEyelidImage(Widget):
+    open_value = BoundedNumericProperty(0, min=-1, max=1,errorhandler=lambda x: 1 if x > 1 else -1)
     
     def open_lid(self):
-        anim = Animation(size=(self.size[0],-(self.open_value*self.parent.size[1])), duration = 0.1)
+        dist = -(self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
+        self.parent.ids['pupil'].get_abs_pos(dist,self.parent.ids['bottomlid'].size[1])
+        anim = Animation(size=(self.size[0],dist), duration = 0.01)
         anim.start(self)
+
+    def close_lid(self):
+        anim = Animation(size=(self.size[0],-self.parent.size[1]), duration = 0.01)
+        anim.start(self)
+
+class BotEyelidImage(Widget):
+    open_value = BoundedNumericProperty(0, min=-1, max=1,errorhandler=lambda x: 1 if x > 1 else -1)
+    
+    def open_lid(self):
+        dist = -(0.5*self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
+        self.parent.ids['pupil'].get_abs_pos(self.parent.ids['toplid'].size[1],dist)
+        anim = Animation(size=(self.size[0],dist), duration = 0.01)
+        anim.start(self)
+
     def close_lid(self):
         anim = Animation(size=(self.size[0],-self.parent.size[1]), duration = 0.01)
         anim.start(self)
