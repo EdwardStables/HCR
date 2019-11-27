@@ -50,10 +50,11 @@ class ai(subsystem):
         emotion = self.get_messages(ref="speech_emotion")
         emotion = emotion[0] if len(emotion) else []
 
-        print(emotion)
-
-        if emotion != self.last_emotion_read:
-            movement_data = []            
+        
+        # Keep for demo and get rid of later
+        if emotion and emotion != self.last_emotion_read:
+            movement_data = []     
+            emotion = emotion.message       
             if emotion == "happy":
                 movement_data =  ["move", 1]
             if emotion == "sad":
@@ -62,7 +63,8 @@ class ai(subsystem):
                 movement_data = ["move", 1]
             if emotion == "thinking":
                 movement_data = ["reset"]
-            
+            print(emotion)
+            print(movement_data)
             self.send_message("serial_interface", "movement", movement_data)
         
         
