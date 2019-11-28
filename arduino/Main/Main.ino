@@ -3,15 +3,14 @@
 #include <Stewart.h>
 
 int pins[] = {9, 10, 11, 12, 14, 15};
-bool once;
 
 Stewart Platform = Stewart(pins);
 
 void setup() {
   // Initialize serial port
   Serial.begin(9600);
+  Serial.println("Serial connection established");
   while (!Serial) continue;
-  once = true;
 }
 
 void loop() {
@@ -22,14 +21,12 @@ void loop() {
   float move[6];
   
   if (Serial.available() > 0) {
-    once = false;
     
     while (Serial.available() > 0) {
       char received = Serial.read();
       inData += received;
     }
     
-    Serial.println(inData);
     char json[inData.length() + 1];
     inData.toCharArray(json, inData.length() + 1);
     Serial.println(json);
@@ -45,23 +42,43 @@ void loop() {
     }
   
     int instr = doc["instr"];
+    int x;
+    String colour = "";
     switch (instr) {
 
       case 1:
+        Serial.print("Move pattern: ");
+        x = doc["pattern"];
+        Serial.println(x);
         movePattern(doc["pattern"]);
         break;
 
       case 2:
-        move[6] = doc["move"];
+        Serial.print("Make move: ");
+        for (int i = 0; i < 6; i++) {
+          move[i] = doc["move"][i];
+          Serial.print(move[i]);
+          Serial.print(" ");
+        }
+        Serial.println();
         makeMove(move);
         break;
 
       case 3:
-        offset[2] = doc["offset"];
+        Serial.print("Apply offset: ");
+        for (int i = 0; i < 2; i++) {
+          offset[i] = doc["offset"][i];
+          Serial.print(offset[i]);
+          Serial.print(" ");
+        }
+        Serial.println();
         applyOffset(offset);
         break;
 
       case 4:
+        Serial.print("Change colour: ");
+        colour = doc["colour"].as<String>();
+        Serial.println(colour);
         changeColour(doc["colour"]);
         break;
       
@@ -73,42 +90,22 @@ void loop() {
 }
 
 void movePattern(int pattern) {
-  Serial.println("movePattern function");
-  Serial.print("Pattern ");
-  Serial.println(pattern);
-  /*switch (int(pattern)) {
 
+  float pattern0[][6] = {{0,0,-30,0,0,0},{0,0,20,0,0,0}};
+  float pattern1[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0},{0,0,20,0,0,0}};
+  
+  switch (pattern) {
     case 0:
-      Serial.println("case 0");
-      float dance[][6] = {{0,0,-30,0,0,0}};
-      iterateMoves(dance, 1);
+      iterateMoves(pattern0, 2);
       break;
 
     case 1:
-      Serial.println("case 1");
-      float test[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
-      iterateMoves(test, 2);
-      break; 
+      iterateMoves(pattern1, 3);
+      break;
 
     default:
-      Serial.println("why are you here");
-      
-  }*/
-
-  if (pattern == 0) {
-    Serial.println("case 0");
-    float dance[][6] = {{0,0,-30,0,0,0}};
-    iterateMoves(dance, 1);
-  } else {
-    if (pattern == 1) {
-      Serial.println("case 1");
-    float test[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
-    iterateMoves(test, 2);
-    } else {
-      Serial.println("why are you here");
-    }
+    break;
   }
-  Serial.println("how did you get here");
 }
 
 void iterateMoves(float moves[][6], int arraySize) {
@@ -122,12 +119,6 @@ void iterateMoves(float moves[][6], int arraySize) {
     rotat.x = moves[i][3];
     rotat.y = moves[i][4];
     rotat.z = moves[i][5];
-    Serial.println(trans.x);
-    Serial.println(trans.y);
-    Serial.println(trans.z);
-    Serial.println(rotat.x);
-    Serial.println(rotat.y);
-    Serial.println(rotat.z);
     
     Platform.applyTranslationAndRotation(trans, rotat);
     delay(500);
