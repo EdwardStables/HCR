@@ -39,6 +39,9 @@ class EyeScreen(Screen):
         righttoplid.calculate_dist()
         leftbotlid.calculate_dist()
         rightbotlid.calculate_dist()
+        
+        self.ids.righteye.ids.pupil.get_abs_pos(righttoplid.dist,rightbotlid.dist)
+        self.ids.lefteye.ids.pupil.get_abs_pos(lefttoplid.dist,leftbotlid.dist)
 
         lefttoplid.open_lid()
         righttoplid.open_lid()
@@ -83,12 +86,14 @@ class PupilImage(Widget):
     def get_abs_pos(self,disttop,distbot):
         abs_x = self.parent.x + 0.5*(1+self.target_pos[0])*(self.parent.size[0]-self.size[0]) 
         abs_y = self.parent.y + 0.5*(1+self.target_pos[1])*(self.parent.size[1]-self.size[1])
-        if(abs_y>self.parent.y+self.parent.size[1]+self.parent.ids['toplid'].size[1]-0.7*self.size[1]):
-            abs_y=self.parent.y+self.parent.size[1]+self.parent.ids['toplid'].size[1]-0.7*self.size[1]
-        elif (abs_y<self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]):
-            abs_y=self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]
-        print(str(abs_x) + "," + str(abs_y))
-        anim = Animation(x=abs_x,y=abs_y, duration =.01)
+
+        if(abs_y>self.parent.y+self.parent.size[1]+disttop-0.7*self.size[1]):
+            abs_y=self.parent.y+self.parent.size[1]+disttop-0.7*self.size[1]
+
+        elif (abs_y<self.parent.y+distbot-0.3*self.size[1]):
+            abs_y=self.parent.y+distbot-0.3*self.size[1]
+        #print(str(abs_x) + "," + str(abs_y))
+        anim = Animation(x=abs_x,y=abs_y, duration =.05)
         anim.start(self)
 
 
@@ -99,8 +104,9 @@ class TopEyelidImage(Widget):
         self.dist = -(self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
 
     def open_lid(self):
-        self.parent.ids['pupil'].get_abs_pos(self.dist,self.parent.ids['bottomlid'].dist)
-        anim = Animation(size=(self.size[0],self.dist), duration = 0.01)
+        #self.parent.ids['pupil'].get_abs_pos(self.dist,self.parent.ids['bottomlid'].dist)
+        print(self.dist)
+        anim = Animation(size=(self.size[0],self.dist), duration = 0.05)
         anim.start(self)
 
     def close_lid(self):
@@ -115,8 +121,9 @@ class BotEyelidImage(Widget):
         self.dist = -(0.5*self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
 
     def open_lid(self):
-        self.parent.ids['pupil'].get_abs_pos(self.parent.ids['toplid'].dist,self.dist)
-        anim = Animation(size=(self.size[0],self.dist), duration = 0.01)
+        #self.parent.ids['pupil'].get_abs_pos(self.parent.ids['toplid'].dist,self.dist)
+        print(self.dist)
+        anim = Animation(size=(self.size[0],self.dist), duration = 0.05)
         anim.start(self)
 
     def close_lid(self):
@@ -135,14 +142,7 @@ class RobotScreens(ScreenManager):
 
 sm = RobotScreens()
 
-#eyescreen = EyeScreen(name='eyes')
-#menuscreen = MenuScreen(name='menus')
-#votingscreen=VotingScreen(name='voting')
 print(str(sm.ids))
-
-#sm.add_widget(eyescreen)
-#sm.add_widget(menuscreen)
-#sm.add_widget(votingscreen)
 
 class RobotApp(App):
     def build(self):
