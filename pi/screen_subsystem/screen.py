@@ -105,7 +105,7 @@ class PupilImage(Widget):
             abs_y=self.parent.y+self.parent.size[1]+self.parent.ids['toplid'].size[1]-0.7*self.size[1]
         elif (abs_y<self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]):
             abs_y=self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]
-        print(str(abs_x) + "," + str(abs_y))
+        #print(str(abs_x) + "," + str(abs_y))
         anim = Animation(x=abs_x,y=abs_y, duration =.1)
         anim.start(self)
 

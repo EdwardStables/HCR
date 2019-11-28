@@ -53,7 +53,7 @@ def speech_function(r, m):
         with m as source:  
             print("Please wait. Calibrating microphone...")  
             # listen for 5 seconds and create the ambient noise energy level  
-            r.adjust_for_ambient_noise(source, duration=5)
+            r.adjust_for_ambient_noise(source, duration=2)
             print("Hi, say something!")
             audio = r.listen(source, timeout = 10.0)  
         
@@ -109,4 +109,5 @@ def speech_setup(microphone_index_number, energy_threshold, pause_threshold):
     speech_function(r, m)
 
 if __name__ == "__main__":
-    speech_setup(0,8000, 0.5)
+    speech_setup(2,10000, 0.5)
+

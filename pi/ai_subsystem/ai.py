@@ -54,7 +54,7 @@ class ai(subsystem):
         # Keep for demo and get rid of later
         if emotion and emotion != self.last_emotion_read:
             movement_data = []     
-            emotion = emotion.message       
+            emotion = emotion.message[0]
             if emotion == "happy":
                 movement_data =  ["move", 1]
             if emotion == "sad":
