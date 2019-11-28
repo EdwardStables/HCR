@@ -14,8 +14,8 @@ from kivy.config import Config
 
 Builder.load_file('robot.kv')
 
-Config.set('graphics', 'width', '480')
-Config.set('graphics', 'height','320')
+Config.set('graphics', 'width', '800')
+Config.set('graphics', 'height','600')
 
 class EyeScreen(Screen):
     mood = NumericProperty(0.0) #parameter for updating mood displayed by robot
