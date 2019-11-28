@@ -88,7 +88,7 @@ class interface(Cmd):
     def do_face_count(self, arg):
         """Start printing the number of faces seen in frame for arg seconds"""
         time = get_num_args(arg)
-        time = time[0] if time else 5
+        time = int(time[0]) if time else 5
         self.op.face_count_command(time)
 
     def do_face_pos(self, arg):
