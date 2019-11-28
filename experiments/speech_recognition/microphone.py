@@ -10,7 +10,7 @@ def speech_function(r, m):
     # map keywords with weightings to emotion state
     emotion_dict = {
         "happy": {"hello": 1, "hi": 1, "great": 2, "good": 1, "dance": 2, "joke": 2, "happy": 2, "how are you": 2, "love": 2, "like": 1},
-        "sad": {"sad": 2, "horrible": 2, "terrible": 2, "bad": 2, "hate": 2},
+        "sad": {"sad": 2, "horrible": 2, "terrible": 2, "bad": 2, "hate": 2, "stupid" :2},
         "content": {"thank": 2, "content": 2, "thanks": 2, "thank you": 2},
         "thinking": {"how": 1, "why": 2, "what": 2, "where": 2, "when": 2, "help": 2, "think": 2}
     }
@@ -49,7 +49,7 @@ def speech_function(r, m):
             "content": 0,
             "thinking": 0    
         }
-
+        print("-----listen-----")
         with m as source:  
             print("Please wait. Calibrating microphone...")  
             # listen for 5 seconds and create the ambient noise energy level  
@@ -58,6 +58,7 @@ def speech_function(r, m):
             audio = r.listen(source, timeout = 10.0)  
         
         # recognize speech using Sphinx  
+        print("-----recog-----")
         try:
             # recognized_words_wit = r.recognize_wit(audio, key="TOUXYZM2RACQGS5ZQRJZQUQ36YK7EQKP")
             # print("Wit thinks you said '" + recognized_words_wit + "'")
@@ -103,8 +104,11 @@ def speech_setup(microphone_index_number, energy_threshold, pause_threshold):
     r.pause_threshold = pause_threshold
 
     # set to use correct microphone input
-    m = sr.Microphone(device_index=MICROPHONE_INDEX)
+    m = sr.Microphone(device_index=MICROPHONE_INDEX, sample_rate=44100)
 
     speech_function(r, m)
 
-speech_setup(1,8000, 0.5)
+if __name__ == "__main__":
+    speech_setup(2,8000, 0.5)
+
+
