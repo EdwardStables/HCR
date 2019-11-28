@@ -25,44 +25,32 @@ class serial_interface(subsystem):
         first element is the instruction type and all other entries are helper
         data.
         """
-        #movement = self.get_messages("movement")
-        #if len(movement) == 0:
-        #    return
-        #else:
-        #    movement = movement[-1]
-        #
-        #msg = {}
-        #if movement.message == "reset":
-        #    msg = self.get_reset()
-        #elif movement.message == "move":
-        #    msg = self.get_moves(movement)
-        #elif movement.message == "track":
-        #    msg = self.get_offset(movement)
-        #elif movement.message == "colour":
-        #    msg = self.get_colour(movement)
+        movement = self.get_messages("movement")
+        if len(movement) == 0:
+            return
+        else:
+            movement = movement[-1]
 
-        msg = {
-            "instr":1,
-            "pattern":0
-        }
-        print(msg)
+        message = movement.message[0]
+        
+        msg = {}
+        if message == "reset":
+            msg = self.get_reset()
+        elif message == "move":
+            msg = self.get_moves(movement)
+        elif message == "track":
+            msg = self.get_offset(movement)
+        elif message == "colour":
+            msg = self.get_colour(movement)
+
+
         ser_msg = json.dumps(msg).encode()
         self.ser.write(ser_msg)
-
-        msg = {
-            "instr":0
-        }
-        print(msg)
-        ser_msg = json.dumps(msg).encode()
-        self.ser.write(ser_msg)
-
-        print("func end")
-
 
     def get_moves(self, movement):
         return {
             "instr":1,
-            "moves": [movement[1], movement[2]]
+            "pattern":movement.message[1]
             }
 
     def get_offset(self, movement):

@@ -19,9 +19,9 @@ def main():
     #Define each subsystem
     subsystems = [
         status(),
-        #face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen"]),
+        face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen"]),
         ai(),
-        #screen(ROOT),
+        screen(ROOT),
         serial_interface()
     ]
 

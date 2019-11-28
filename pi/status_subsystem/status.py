@@ -88,7 +88,7 @@ class interface(Cmd):
     def do_face_count(self, arg):
         """Start printing the number of faces seen in frame for arg seconds"""
         time = get_num_args(arg)
-        time = time[0] if time else 5
+        time = int(time[0]) if time else 5
         self.op.face_count_command(time)
 
     def do_face_pos(self, arg):
@@ -127,23 +127,18 @@ class interface(Cmd):
             self.prompt = "(" + args[0] + ")>"
             self.set_reciever = args[0]
             return
-        elif num == 2:
-            if self.set_reciever == None:
-                print("Error in command: No receiver set")
-                return
-            positions = serialize_list(args[1], float)
-            self.op.send_message(self.set_reciever, args[0], positions)
-        if num == 3:
-            positions = serialize_list(args[2], float)
-            self.op.send_message(args[0], args[1], positions)
+        elif self.set_reciever != None:
+            self.op.send_message(self.set_reciever, args[0], caster(args[1:]))
+        else:
+            self.op.send_message(args[0], args[1], caster(args[2:]))
 
-def serialize_list(arg, caster=None):
-    vals = arg.split(',')
-    v1 = vals[0][1:]
-    v2 = vals[1][:-1]
-    if caster!=None:
-        return [caster(v1), caster(v2)]
-    return [v1, v2] 
+def caster(args):
+    converted = []
+    for a in args:
+        if a.isnumeric():
+            a = float(a)
+        converted.append(a)
+    return converted
 
 def get_num_args(arg):
     args = arg.split()
