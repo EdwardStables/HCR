@@ -32,8 +32,10 @@ while True:
      elif data[0] == "colour":
           serial_command = "{\"instr\":4,\"colour\":\""\
                               + data[1] + "\"}"
-     else: 
+     elif data[0] == "reset":
           serial_command = "{\"instr\":0}"
+     else: 
+          print("Invalid command")
 
      ser.write(serial_command.encode())
      ser.flush()

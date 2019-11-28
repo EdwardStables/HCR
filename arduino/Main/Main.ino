@@ -104,7 +104,8 @@ void movePattern(int pattern) {
       break;
 
     default:
-    break;
+      Serial.println("Unknown pattern");
+      break;
   }
 }
 
@@ -147,6 +148,7 @@ void makeMove(float move[]) {
 void applyOffset(float offset[2]) {
   int tx, ty, tz, rx, ry, rz;
   // Offset needs converting to xyz xyz
+  Serial.println("Offset applied (conversion still needed)");
   static Vector trans;
   static Vector rotat;
   trans.x = tx;
