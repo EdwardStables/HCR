@@ -102,9 +102,11 @@ def speech_setup(microphone_index_number, energy_threshold, pause_threshold):
     # pause_threshold = 0.5
     r.pause_threshold = pause_threshold
 
+
     # set to use correct microphone input
     m = sr.Microphone(device_index=MICROPHONE_INDEX)
 
     speech_function(r, m)
 
-speech_setup(1,8000, 0.5)
+if __name__ == "__main__":
+    speech_setup(0,8000, 0.5)
