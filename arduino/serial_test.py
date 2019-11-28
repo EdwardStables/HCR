@@ -1,16 +1,10 @@
 from time import sleep
 import serial
-ser = serial.Serial('COM3', 9600) # Establish the connection on a specific port#
-serial_command = ""
-data_available = False
-
-def is_int(s):
-    try: 
-        int(s)
-        return True
-    except ValueError:
-        return False
-
+ser = serial.Serial('/dev/ttyACM0', 9600) # Establish the connection on a specific port#
+string = "{\"instr\":1,\"pattern\":0}"
+print("pre-send")
+ser.write(string.encode())
+print("post-send")
 while True:
      command = input("Enter command: ")
      data = command.split()
