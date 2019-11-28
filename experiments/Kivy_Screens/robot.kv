@@ -1,4 +1,15 @@
 #:kivy 1.11.1
+<RobotScreens>:
+    EyeScreen:
+        id: eyes
+        name: 'eyes'
+    MenuScreen:
+        id: menus
+        name: 'menus'
+    VotingScreen:
+        id: voting
+        name: 'voting'
+
 
 <EyeScreen>:
     FloatLayout:
@@ -162,7 +173,7 @@
 <TopEyelidImage>:
     canvas:
         Color:
-            rgb: (0,0,0)
+            rgb: (1,0,0)
         Rectangle:
             size: self.size
             pos: self.pos
@@ -170,7 +181,7 @@
 <BotEyelidImage>:
     canvas:
         Color:
-            rgb: (0,0,0)
+            rgb: (1,0,0)
         Rectangle:
             size: self.size
             pos: self.pos

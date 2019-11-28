@@ -34,6 +34,11 @@ class EyeScreen(Screen):
         righttoplid.open_value=value
         leftbotlid.open_value=value
         rightbotlid.open_value=value
+        
+        lefttoplid.calculate_dist()
+        righttoplid.calculate_dist()
+        leftbotlid.calculate_dist()
+        rightbotlid.calculate_dist()
 
         lefttoplid.open_lid()
         righttoplid.open_lid()
@@ -89,11 +94,13 @@ class PupilImage(Widget):
 
 class TopEyelidImage(Widget):
     open_value = BoundedNumericProperty(0, min=-1, max=1,errorhandler=lambda x: 1 if x > 1 else -1)
-    
+    dist = NumericProperty(0)
+    def calculate_dist(self):
+        self.dist = -(self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
+
     def open_lid(self):
-        dist = -(self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
-        self.parent.ids['pupil'].get_abs_pos(dist,self.parent.ids['bottomlid'].size[1])
-        anim = Animation(size=(self.size[0],dist), duration = 0.01)
+        self.parent.ids['pupil'].get_abs_pos(self.dist,self.parent.ids['bottomlid'].dist)
+        anim = Animation(size=(self.size[0],self.dist), duration = 0.01)
         anim.start(self)
 
     def close_lid(self):
@@ -102,11 +109,14 @@ class TopEyelidImage(Widget):
 
 class BotEyelidImage(Widget):
     open_value = BoundedNumericProperty(0, min=-1, max=1,errorhandler=lambda x: 1 if x > 1 else -1)
-    
+    dist = NumericProperty(0)
+
+    def calculate_dist(self):
+        self.dist = -(0.5*self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
+
     def open_lid(self):
-        dist = -(0.5*self.open_value*(self.parent.size[1]-0.7*self.parent.ids['pupil'].size[0]))
-        self.parent.ids['pupil'].get_abs_pos(self.parent.ids['toplid'].size[1],dist)
-        anim = Animation(size=(self.size[0],dist), duration = 0.01)
+        self.parent.ids['pupil'].get_abs_pos(self.parent.ids['toplid'].dist,self.dist)
+        anim = Animation(size=(self.size[0],self.dist), duration = 0.01)
         anim.start(self)
 
     def close_lid(self):
@@ -120,15 +130,19 @@ class VotingScreen(Screen):
     def pass_reaction(self,reaction):       #placeholder for now, will change later
         print("user reacted with : "+str(reaction))
 
-sm = ScreenManager()
-eyescreen = EyeScreen(name='eyes')
-menuscreen = MenuScreen(name='menus')
-votingscreen=VotingScreen(name='voting')
-print(str(sm.size))
+class RobotScreens(ScreenManager):
+    pass
 
-sm.add_widget(eyescreen)
-sm.add_widget(menuscreen)
-sm.add_widget(votingscreen)
+sm = RobotScreens()
+
+#eyescreen = EyeScreen(name='eyes')
+#menuscreen = MenuScreen(name='menus')
+#votingscreen=VotingScreen(name='voting')
+print(str(sm.ids))
+
+#sm.add_widget(eyescreen)
+#sm.add_widget(menuscreen)
+#sm.add_widget(votingscreen)
 
 class RobotApp(App):
     def build(self):
@@ -136,4 +150,3 @@ class RobotApp(App):
 
 if __name__ == '__main__':
     RobotApp().run()
-
