@@ -1,10 +1,7 @@
 from time import sleep
 import serial
-ser = serial.Serial('/dev/ttyACM0', 9600) # Establish the connection on a specific port#
-string = "{\"instr\":1,\"pattern\":0}"
-print("pre-send")
-ser.write(string.encode())
-print("post-send")
+ser = serial.Serial('COM3', 9600) # Establish the connection on a specific port#
+
 while True:
      command = input("Enter command: ")
      data = command.split()
@@ -30,6 +27,7 @@ while True:
           serial_command = "{\"instr\":0}"
      else: 
           print("Invalid command")
+          serial_command = "{}"
 
      ser.write(serial_command.encode())
      ser.flush()

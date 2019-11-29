@@ -157,7 +157,7 @@ void applyOffset(float offset[2]) {
   rotat.x = rx;
   rotat.y = ry;
   rotat.z = rz;
-  Platform.applyTranslationAndRotation(trans, rotat);
+  //Platform.applyTranslationAndRotation(trans, rotat);
   delay(500);
 }
 
