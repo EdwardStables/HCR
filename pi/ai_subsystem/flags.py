@@ -1,6 +1,5 @@
 # flags.py
 
-
 class Flag(object):
     """
     Class containing flags that are used for moving around the state machine as well as a function for printing them.
@@ -12,18 +11,15 @@ class Flag(object):
         self.listening = False
         self.processing = False
         self.talking = True
-        self.name = "unknown"
         self.question = -1
         self.timeout = 5
-        self.lastNonTimeOut = None
     
     def printFlags(self):
-        print("current state:", self.currentState,
-            "\nperson:", self.person, 
+        print("\ntimeout:", self.timeout,
+	    "\nperson:", self.person, 
             "\nlistening:", self.listening, 
             "\nprocessing:", self.processing,
             "\ntalking:", self.talking, 
-            "\nname:", self.name, 
-            "\nquestion:", self.question,
-            "\n\n#################\n" )
+            "\nquestion:", self.question, "(-1: invalid question, 0: cancel question, 1+: all other questions)",
+            )
 

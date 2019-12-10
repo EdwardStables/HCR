@@ -4,7 +4,6 @@ from .flags import Flag
 # Set up the flags
 flag = Flag()
 
-
 class State(object):
     """
     Generic state class that can run code and move into the next state.
@@ -30,15 +29,18 @@ class Idle(State):
         flag.talking = False
         flag.processing = False
         flag.listening = False
-        flag.name = "unknown"
         flag.timeout = 5
         flag.lastNonTimeOut = Idle()
+        print("Robot emotion: Idling. \nSend LIGHT GREEN colour information. \nSend CONTENT eyes to screen. \nSend DANCING movement information")
         
     def event(self, event):
         
         if flag.person == True:
+            print("**Person appears**")
+            print("Call function to greet user.")
             return WatchingGreeting()
         
+        # doing shit all
         return self
 
 
@@ -46,17 +48,20 @@ class TimingOut(State):
     def run(self):
         self.state_string = "TimingOut"
         flag.timeout = flag.timeout - 1
+        print("DO NOT CHANGE INFORMATION SENT TO SUBSYSTEMS")
     def event(self, event):
         
         if flag.timeout == 0:
+            print("**Person didn't return after 5 cycles**")
             return Idle()
 
         if flag.person == True:
+            print("**Refound person**")
             flag.timeout = 5
             return flag.lastNonTimeOut
         
+        print("**Person disappeared for", 5 - flag.timeout, "cycles**")
         return self
-
 
 
 class WatchingGreeting(State):
@@ -64,8 +69,7 @@ class WatchingGreeting(State):
     WatchingGreeting State
 
     - Robot watches person.
-    - If the person is known, then the robot welcomes them and moves into the WatchingWaiting state.
-    - If the person is unknown, tell them they are unknown and move into the WatchingGetName state.
+    - The robot welcomes them and moves into the WatchingWaiting state.
     - If the person leaves then return to Idle state.
     - Otherwise remain in this state.
     """
@@ -74,45 +78,19 @@ class WatchingGreeting(State):
         flag.talking = True
         flag.listen = False
         flag.lastNonTimeOut = WatchingGreeting()
+        print("Robot emotion: Happy. \nSend YELLOW colour information. \nSend HAPPY eyes to screen. \nSend WATCHING movement information")
         
     def event(self, event):
         
-        if flag.person == True and flag.name != "unknown":
-            #say(("Hello " + flag.name))
+        if flag.person == True:
+            print("**Robot greets person**")
             return WatchingWaiting()
         
-        elif flag.person == True and flag.name == "unknown":
-            #say("I don't know you, what is your name?")
-            return WatchingGetName()
-        
         elif flag.person == False:
-            return TimingOut()
-        return self
-
-
-class WatchingGetName(State):
-    """
-    WatchingGetName State
-
-    - If the name is updated from unknown then move to WatchingGreeting state.
-    - If the person leaves then return to Idle state.
-    - Otherwise remain in this state.
-    """
-    def run(self): 
-        self.state_string = "Idle"
-        flag.talking = False
-        flag.listening = True
-        flag.lastNonTimeOut = WatchingGetName()
-        
-    def event(self, event):
-        
-        if flag.person == True: # and flag.name != "unknown":
-            flag.name = "getName()"
-            return WatchingGreeting()
-        
-        elif flag.person == False:
+            print("**Lost person**")
             return TimingOut()
         
+        # still greeting
         return self
 
 
@@ -126,74 +104,45 @@ class WatchingWaiting(State):
     """
     def run(self): 
         self.state_string = "WatchingWaiting"
-        flag.processing = False
-        flag.listening = True
+        flag.listening = False
         flag.talking = False
         flag.lastNonTimeOut = WatchingWaiting()
+        print("Robot emotion: Content. \nSend LIGHT GREEN colour information. \nSend CONTENT eyes to screen. \nSend WATCHING movement information")
         
     def event(self, event):
         
-        if flag.person == True and flag.processing == True:
-            #say("What is your question?")
-            return WatchingProcessing()
+        if flag.person == True and flag.question != -1:
+            flag.processing == True
+            print("**call function that displays question and sets processing flag to False after question answered**")
+            return WatchingAskingQuestion()
         
         if flag.person == False:
+            print("**Lost person**")
             return TimingOut()
         
+        # nothing has happened
         return self
 
 
-class WatchingTalking(State):
+class WatchingAskingQuestion(State):
     """
-    WatchingTalking State
+    WatchingAskingQuestion State
 
-    - If the person is still present and the robot isn't talking go to the WatchingWaiting state.
-    - If the person is leaves and the robot isn't talking go to the Idle state.
-    - Otherwise remain in this state.   
-    """
-    def run(self): 
-        self.state_string = "WatchingTalking"
-        flag.lastNonTimeOut = WatchingTalking()
-        
-    def event(self, event):        
-        
-        if flag.person == True and flag.talking == False and flag.question == -1:
-            #say("Invalid question, please ask a valid question.")
-            return WatchingProcessing()
-
-        if flag.person == True and flag.talking == False and flag.question == 0:
-            #say("Okay.")
-            return WatchingWaiting()
-
-        if flag.person == True and flag.talking == False and flag.question > 0:
-            # answerQuestion(flag.question - 1) # Subtract 1 because index 0 is the nevermind question
-            return WatchingWaiting()
-        
-        if flag.person == False and flag.talking == False:
-            return TimingOut()
-        
-        return self
-
-
-class WatchingProcessing(State):
-    """
-    WatchingProcessing State
-
-    - Listens to question asked by person.
-    - If the person is still present go to the WatchingTalking state.
-    - If the person leabes go to the Idle state.
+    - Presents a question to be answered by the person
+    - If person answers question go back to watching waiting
+    - If the person leaves go to the timeout state.
     - Otherwise remain in this state.
     """
     def run(self): 
-        self.state_string = "WatchingProcessing"
-        flag.listening = False
-        flag.lastNonTimeOut = WatchingProcessing()
+        self.state_string = "WatchingAskingQuestion"
+        flag.listening = True
+        flag.lastNonTimeOut = WatchingAskingQuestion()
         
     def event(self, event):
         
-        if flag.person == True:
-            #flag.question = getQuestion()
-            return WatchingTalking()
+        if flag.person == True and flag.processing == False:
+            flag.question == -1
+            return WatchingWaiting()
         
         if flag.person == False:
             return TimingOut()

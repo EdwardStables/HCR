@@ -37,8 +37,8 @@ while True:
         prompt = "\n> person "
     elif x == "cancelled":
         flag.processing = False
-        flag.question = 1
-        prompt = "> person "
-    elif x == "quit":
+        flag.question = 0
+        prompt = "\n> person "
+    elif x == "quit" or x == "exit":
         break
 
