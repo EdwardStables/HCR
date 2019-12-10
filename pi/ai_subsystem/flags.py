@@ -13,6 +13,8 @@ class Flag(object):
         self.talking = True
         self.question = -1
         self.timeout = 5
+        self.emotion = ("", 0)
+        self.greeting = 0 # Greet for three cycles
         self.interactivity = 2
     
     def printFlags(self):
@@ -22,6 +24,9 @@ class Flag(object):
             "\nprocessing:", self.processing,
             "\ntalking:", self.talking, 
             "\nquestion:", self.question, "(-1: invalid question, 0: cancel question, 1+: all other questions)",
-            "\ninteractivity:", self.interactivity 
+            "\ninteractivity:", self.interactivity,
+            "\nemotion:", self.emotion[0], 
+            "\nemotionLock:", self.emotion[1],
+            "\ngreeting:", self.greeting
             )
 

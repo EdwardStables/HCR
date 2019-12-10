@@ -17,6 +17,7 @@ class ai(subsystem):
         self.movement = ("", "")
         self.colour = ("", "")
         self.eyes = ("", "")
+        self.greeting = False
         super().__init__("ai", "id_only")
 
 
@@ -39,8 +40,7 @@ class ai(subsystem):
                 self.send_state_update(new_state)
 
     def check_messages(self):
-        # Recieve data
-        # Emotion
+        # Receive Emotion data
         emotion = self.get_messages(ref="speech_emotion")
         emotion = emotion[0] if len(emotion) else []
         # Set flags.emotion
@@ -49,11 +49,11 @@ class ai(subsystem):
         if emotion and emotion != self.last_emotion_read:
             self.last_emotion_read = emotion.message
 
-        # Question Answers
+        # Receive Question Answers data
         answer = self.get_messages(ref="question_answer")
         answer = answer[0] if len(answer) else []
 
-        # Number of faces
+        # Receive Number of faces data
         num_faces = self.get_messages(ref="num_faces")
         num_faces = num_faces[0] if len(num_faces) else []
         # Set flags.person
@@ -62,11 +62,11 @@ class ai(subsystem):
         if num_faces and self.last_face_number != num_faces.message:
             self.last_face_number = num_faces.message
 
-        # Log question and answer
+        # Log question and answer in csv file
         if self.robot.flags.processing == True:
             log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer)
             try:
-                f = open("log.csv", 'w')
+                f = open("question_log.csv", 'w')
                 f.write(log)
             finally:
                 f.close()
@@ -126,8 +126,16 @@ class ai(subsystem):
         if self.eyes[0] != self.eyes[1] and self.robot.flags.interactivity > 0:
             self.send_message("touch_screen", "eyes", eye_data)
 
+        # Sort out Greeting
+        if self.robot.flags.greeting == 0:
+            self.greeting = False
+        elif self.robot.flags.greeting == 3: # If we change the greeting length also change here
+            self.greeting = True
+            self.send_message("touch_screen", "greeting", ["initialise_greeting"])
+
         #Handle remaining messages
         messages = self.get_messages()
+
         #Subscriber updates
         for m in messages:
             if m.ref == "state_update_subscribe":
