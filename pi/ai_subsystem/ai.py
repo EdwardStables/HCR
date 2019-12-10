@@ -117,13 +117,13 @@ class ai(subsystem):
             eye_data = ["eye_lids", "no_movement"]
 
         # Send messages as required
-        if self.movement[0] != self.movement[1]:
+        if self.movement[0] != self.movement[1] and self.robot.flags.interactivity == 2:
             self.send_message("serial_interface", "movement", movement_data)
 
-        if self.colour[0] != self.colour[1]:
+        if self.colour[0] != self.colour[1] and self.robot.flags.interactivity > 0:
             self.send_message("serial_interface", "colour", colour_data)
 
-        if self.eyes[0] != self.eyes[1]:
+        if self.eyes[0] != self.eyes[1] and self.robot.flags.interactivity > 0:
             self.send_message("touch_screen", "eyes", eye_data)
 
         #Handle remaining messages
