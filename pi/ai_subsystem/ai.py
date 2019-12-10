@@ -3,6 +3,7 @@ from hcrutils.message import messagebody
 from .stateMachine import StateMachine
 from .flags import Flag
 from time import sleep, time
+from datetime import datetime
 from collections import deque
 
 class ai(subsystem):
@@ -13,6 +14,10 @@ class ai(subsystem):
         self.loop_time = loop_time
         self.last_face_number = 0
         self.last_emotion_read = ""
+        self.last_movement = "reset"
+        self.current_movement = "reset"
+        self.last_colour = ""
+        self.current_colour = ""
         super().__init__("ai", "id_only")
 
 
@@ -35,37 +40,39 @@ class ai(subsystem):
                 self.send_state_update(new_state)
 
     def check_messages(self):
-        #Update flags:
         #Receive most recent number of faces in frame.
         num_faces = self.get_messages(ref="num_faces")
         num_faces = num_faces[0] if len(num_faces) else []
-        
-        if num_faces and self.last_face_number != num_faces.message:
-            #print("Number of faces:", num_faces.message)
-            self.last_face_number = num_faces.message
 
+        if num_faces and self.last_face_number != num_faces.message:
+            self.last_face_number = num_faces.message
+        # Set flags.person
         self.robot.flags.person = bool(num_faces)
 
         # Recieve emotion data
         emotion = self.get_messages(ref="speech_emotion")
         emotion = emotion[0] if len(emotion) else []
 
-        
-        # Keep for demo and get rid of later
         if emotion and emotion != self.last_emotion_read:
-            movement_data = []     
-            emotion = emotion.message       
-            if emotion == "happy":
-                movement_data =  ["move", 1]
-            if emotion == "sad":
-                movement_data = ["move", 0]
-            if emotion == "content":
-                movement_data = ["move", 1]
-            if emotion == "thinking":
-                movement_data = ["reset"]
-            print(emotion)
-            print(movement_data)
-            self.send_message("serial_interface", "movement", movement_data)
+            self.last_emotion_read = emotion.message
+        # Set flags.emotion
+        self.robot.flags.emotion = emotion.message
+
+        # Recieve question answers
+        answer = self.get_messages(ref="question_answer")
+        answer = answer[0] if len(answer) else []
+
+        # Log question and answer
+        if self.robot.flags.processing == True:
+            log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer)
+            try:
+                f = open("log.csv", 'w')
+                f.write(log)
+            finally:
+                f.close()
+            # Tell ai subsystem that processing is done so it will go back to WatchingWaiting()
+            self.robot.flags.processing = False
+
         
         
         #Add processing for the rest of the flags here...

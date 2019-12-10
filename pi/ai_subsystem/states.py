@@ -34,7 +34,7 @@ class Idle(State):
         print("Robot emotion: Idling. \nSend LIGHT GREEN colour information. \nSend CONTENT eyes to screen. \nSend DANCING movement information")
         
     def event(self, event):
-        
+
         if flag.person == True:
             print("**Person appears**")
             print("Call function to greet user.")
