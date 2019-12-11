@@ -18,8 +18,9 @@ class ai(subsystem):
         self.colour = ("", "")
         self.eyes = ("", "")
         self.greeting = False
+        self.greetingLength = self.robot.flags.greetingLength
+        self.questionAnswered = True
         super().__init__("ai", "id_only")
-
 
     def _run(self):
         self.robot = StateMachine()
@@ -53,6 +54,10 @@ class ai(subsystem):
         answer = self.get_messages(ref="question_answer")
         answer = answer[0] if len(answer) else []
 
+        # get whether question has been answered (bool)
+        answered = self.get_messages(ref="question_answered")
+        answered = answer[0] if len(answer) else []
+
         # Receive Number of faces data
         num_faces = self.get_messages(ref="num_faces")
         num_faces = num_faces[0] if len(num_faces) else []
@@ -63,7 +68,7 @@ class ai(subsystem):
             self.last_face_number = num_faces.message
 
         # Log question and answer in csv file
-        if self.robot.flags.processing == True:
+        if self.robot.flags.processing[0] == True and answered == True:
             log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer)
             try:
                 f = open("question_log.csv", 'w')
@@ -71,7 +76,10 @@ class ai(subsystem):
             finally:
                 f.close()
             # Tell ai subsystem that processing is done so it will go back to WatchingWaiting()
-            self.robot.flags.processing = False
+            self.robot.flags.processing = [False, False, -1]
+            # Make robot sad for 5 cycles if results bad
+            if answer < 3:
+                self.robot.flags.emotion = ("sad", 5)
 
         # prepare movement information
         if self.robot.flags.currentState == "Idle":
@@ -81,7 +89,7 @@ class ai(subsystem):
             movement_data = ["move", 1] # 1 means following
             self.movement = (self.movement[1], "following")
         elif self.robot.flags.currentState == "WatchingGreeting":
-            movement_data = ["move", 1]
+            movement_data = ["move", 1] 
             self.movement = (self.movement[1], "following")
         elif self.robot.flags.currentState == "WatchingAskingQuestion":
             movement_data = ["move", 1]
@@ -129,9 +137,18 @@ class ai(subsystem):
         # Sort out Greeting
         if self.robot.flags.greeting == 0:
             self.greeting = False
-        elif self.robot.flags.greeting == 3: # If we change the greeting length also change here
+        elif self.robot.flags.greeting == self.greetingLength: # If we change the greeting length also change here
             self.greeting = True
-            self.send_message("touch_screen", "greeting", ["initialise_greeting"])
+            greetingMessage = ["initialise_greeting", self.greetingLength]
+            self.send_message("touch_screen", "greeting", greetingMessage)
+            self.robot.flags.emotion = "happy",  self.greetingLength
+            # Only make face happy, not movement
+
+        # Sort out question initialisation
+        if self.robot.flags.processing[1] == True:
+            question = ["show_question", self.robot.flags.question]
+            self.send_message("touch_screen", "question", question)
+            self.robot.flags.processing[1] = False 
 
         #Handle remaining messages
         messages = self.get_messages()

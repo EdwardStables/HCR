@@ -34,15 +34,14 @@ class Idle(State):
         flag.timeout = 5
         flag.lastNonTimeOut = Idle()
         if flag.emotion[1] == 0:
-            flag.emotion[0] = "content"
+            flag.emotion = "content", flag.emotion[1]
         elif flag.emotion[1] > 0:
-            flag.emotion[1] -= 1
+            flag.emotion = flag.emotion[0], (flag.emotion[1] - 1)
 
     def event(self, event):
 
         if flag.person == True:
-            greetPerson()
-            flag.greeting = 3 # length for greeting
+            flag.greeting = flag.greetingLength # length for greeting
             return WatchingGreeting()
         
         return self
@@ -82,9 +81,9 @@ class WatchingGreeting(State):
         flag.listen = False
         flag.lastNonTimeOut = WatchingGreeting()
         if flag.emotion[1] == 0:
-            flag.emotion[0] = "happy"
+            flag.emotion = "happy", flag.emotion[1]
         elif flag.emotion[1] > 0:
-            flag.emotion[1] -= 1
+            flag.emotion = flag.emotion[0], (flag.emotion[1] - 1)
         flag.greeting -= 1
 
     def event(self, event):
@@ -112,15 +111,15 @@ class WatchingWaiting(State):
         flag.talking = False
         flag.lastNonTimeOut = WatchingWaiting()
         if flag.emotion[1] == 0:
-            flag.emotion[0] = "content"
+            flag.emotion = "content", flag.emotion[1]
         elif flag.emotion[1] > 0:
-            flag.emotion[1] -= 1
+            flag.emotion = flag.emotion[0], (flag.emotion[1] - 1)
 
     def event(self, event):
         
         if flag.person == True and flag.question != -1:
-            flag.processing == True
-            flag.emotion = makeQuestion(flag.emotion[0])
+            flag.processing == [True, True, flag.question]
+            # need to create function that actually initialises what question
             return WatchingAskingQuestion()
         
         if flag.person == False:
@@ -143,13 +142,13 @@ class WatchingAskingQuestion(State):
         flag.listening = True
         flag.lastNonTimeOut = WatchingAskingQuestion()
         if flag.emotion[1] == 0:
-            flag.emotion[0] = "thinking"
+            flag.emotion = "thinking", flag.emotion[1]
         elif flag.emotion[1] > 0:
-            flag.emotion[1] -= 1
+            flag.emotion = flag.emotion[0], (flag.emotion[1] - 1)
         
     def event(self, event):
         
-        if flag.person == True and flag.processing == False:
+        if flag.person == True and flag.processing[0] == False:
             flag.question == -1
             return WatchingWaiting()
         
