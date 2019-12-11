@@ -10,6 +10,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.slider import Slider
+from kivy.uix.button import Button
 
 from kivy.graphics import Rectangle, Color, Ellipse
 from kivy.animation import Animation
@@ -135,6 +136,9 @@ class BotEyelidImage(Widget):
         anim = Animation(size=(self.size[0],-self.parent.size[1]), duration = 0.01)
         anim.start(self)
 
+class VotingButton(Button):
+    value = NumericProperty(0)
+
 class MenuScreen(Screen):
     pass
 
@@ -142,6 +146,12 @@ class VotingScreen(Screen):
     def pass_reaction(self,reaction):       
         #placeholder for now, will change later
         pass
+    def to_eyes(self):
+        self.manager.transition.direction='down'
+        self.manager.current = 'eyes'
+
+class RobotScreens(ScreenManager):
+    pass
 
 class RobotApp(App):
     def __init__(self, op):
@@ -159,14 +169,14 @@ class RobotApp(App):
         #Add more in the same way...
 
     def build(self):
-        sm = ScreenManager()
-        self.eyescreen = EyeScreen(name='eyes')
-        self.menuscreen = MenuScreen(name='menus')
-        self.votingscreen=VotingScreen(name='voting')
+        sm = RobotScreens()
+        #self.eyescreen = EyeScreen(name='eyes')
+        #self.menuscreen = MenuScreen(name='menus')
+        #self.votingscreen=VotingScreen(name='voting')
 
-        sm.add_widget(self.eyescreen)
-        sm.add_widget(self.menuscreen)
-        sm.add_widget(self.votingscreen)
+        #sm.add_widget(self.eyescreen)
+        #sm.add_widget(self.menuscreen)
+        #sm.add_widget(self.votingscreen)
 
         message_event = Clock.schedule_interval(
             partial(self.message_callback, self), 0.01)
