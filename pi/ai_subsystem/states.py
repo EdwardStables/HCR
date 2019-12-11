@@ -1,7 +1,6 @@
 # states.py
 
 from .flags import Flag
-from .misc import *
 
 # Set up the flags
 flag = Flag()

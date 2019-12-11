@@ -18,12 +18,13 @@ class ai(subsystem):
         self.colour = ("", "")
         self.eyes = ("", "")
         self.greeting = False
-        self.greetingLength = self.robot.flags.greetingLength
+        self.greetingLength = 0
         self.questionAnswered = True
         super().__init__("ai", "id_only")
 
     def _run(self):
         self.robot = StateMachine()
+        self.greetingLength = self.robot.flags.greetingLength
         t1 = time()
         self.status = "Idle()"
         self.last_state = "Idle()"
@@ -44,11 +45,12 @@ class ai(subsystem):
         # Receive Emotion data
         emotion = self.get_messages(ref="speech_emotion")
         emotion = emotion[0] if len(emotion) else []
-        # Set flags.emotion
-        self.robot.flags.emotion = emotion.message
+        
         # Set internal last_eomtion_read
         if emotion and emotion != self.last_emotion_read:
             self.last_emotion_read = emotion.message
+            # Set flags.emotion
+            self.robot.flags.emotion = emotion.message
 
         # Receive Question Answers data
         answer = self.get_messages(ref="question_answer")
