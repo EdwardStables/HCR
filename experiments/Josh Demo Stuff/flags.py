@@ -15,7 +15,8 @@ class Flag(object):
         self.timeout = 5
     
     def printFlags(self):
-        print("\nperson:", self.person, 
+        print("\ntimeout:", self.timeout,
+	    "\nperson:", self.person, 
             "\nlistening:", self.listening, 
             "\nprocessing:", self.processing,
             "\ntalking:", self.talking, 

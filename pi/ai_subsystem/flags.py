@@ -1,29 +1,35 @@
 # flags.py
 
-
 class Flag(object):
     """
     Class containing flags that are used for moving around the state machine as well as a function for printing them.
     """
     
     def __init__(self):
-        self.currentState = "Idle()"
+        self.currentState = "Idle"
         self.person = False
         self.listening = False
-        self.processing = False
+        self.processing = [False, False, -1]
         self.talking = True
-        self.name = "unknown"
         self.question = -1
         self.timeout = 5
-        self.lastNonTimeOut = None
+        self.emotion = ("", 0)
+        self.greeting = 0 # Greet for three cycles
+        self.interactivity = 2
+        self.greetingLength = 3
+        self.questionAnswered = True
     
     def printFlags(self):
-        print("current state:", self.currentState,
-            "\nperson:", self.person, 
+        print("\ntimeout:", self.timeout,
+	        "\nperson:", self.person, 
             "\nlistening:", self.listening, 
             "\nprocessing:", self.processing,
             "\ntalking:", self.talking, 
-            "\nname:", self.name, 
-            "\nquestion:", self.question,
-            "\n\n#################\n" )
+            "\nquestion:", self.question, "(-1: invalid question, 0: cancel question, 1+: all other questions)",
+            "\ninteractivity:", self.interactivity,
+            "\nemotion:", self.emotion[0], 
+            "\nemotionLock:", self.emotion[1],
+            "\ngreeting:", self.greeting,
+            "\ngreeting length:", self.greetingLength
+            )
 
