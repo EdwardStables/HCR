@@ -104,23 +104,26 @@
     BoxLayout:
         size_hint_y: 0.8
         pos_hint: {'bottom':1}
-        Button:
+        VotingButton:
             id: button1
             text: '1'
-            color: (0,0,0,1)
-            background_color: (0,0,0,0)
-            canvas.before:
-                Color:
-                    rgb: (1,1,1)
-                Ellipse:
-                    size: (self.size[0],self.size[0])
-                    #pos: (self.x,self.y+0.5(self.size[1]-self.size[0]))
-                    pos: (self.x,self.y+self.size[1]/2-self.size[0]/2)
+        # Button:
+        #     id: button1
+        #     text: '1'
+        #     color: (0,0,0,1)
+        #     background_color: (0,0,0,0)
+        #     canvas.before:
+        #         Color:
+        #             rgb: (1,1,1)
+        #         Ellipse:
+        #             size: (self.size[0],self.size[0])
+        #             #pos: (self.x,self.y+0.5(self.size[1]-self.size[0]))
+        #             pos: (self.x,self.y+self.size[1]/2-self.size[0]/2)
             
-            on_press:
-                root.pass_reaction(1)
-                root.manager.transition.direction='down'
-                root.manager.current = 'eyes'
+        #     on_press:
+        #         root.pass_reaction(1)
+        #         root.manager.transition.direction='down'
+        #         root.manager.current = 'eyes'
         Button:
             id: button2
             text: '2'
@@ -150,6 +153,21 @@
                 root.manager.transition.direction='down'
                 root.manager.current = 'eyes'
 
+<VotingButton>:
+    #Button:
+    color: (0,0,0,1)
+    background_color: (0,0,0,0)
+    canvas.before:
+        Color:
+            rgb: (1,1,1)
+        Ellipse:
+            size: (self.size[0],self.size[0])
+            pos: (self.x,self.y+self.size[1]/2-self.size[0]/2)
+    on_press:
+        root.pass_reaction(1)
+        self.parent.parent.to_eyes()
+        #root.manager.transition.direction='down'
+        #root.manager.current = 'eyes'
 
 <EyeImage>:
     size_hint: (None,None)

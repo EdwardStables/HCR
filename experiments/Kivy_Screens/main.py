@@ -4,6 +4,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.slider import Slider
+from kivy.uix.button import Button
 
 from kivy.graphics import Rectangle, Color, Ellipse
 from kivy.animation import Animation
@@ -130,12 +131,17 @@ class BotEyelidImage(Widget):
         anim = Animation(size=(self.size[0],-self.parent.size[1]), duration = 0.01)
         anim.start(self)
 
+class VotingButton(Button):
+    def pass_reaction(self,reaction):       #placeholder for now, will change later
+        print("user reacted with : "+str(reaction))
+
 class MenuScreen(Screen):
     pass
 
 class VotingScreen(Screen):
-    def pass_reaction(self,reaction):       #placeholder for now, will change later
-        print("user reacted with : "+str(reaction))
+    def to_eyes(self):
+        self.manager.transition.direction='down'
+        self.manager.current = 'eyes'
 
 class RobotScreens(ScreenManager):
     pass
