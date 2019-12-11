@@ -28,7 +28,7 @@ class Idle(State):
     def run(self):
         self.state_string = "Idle"
         flag.talking = False
-        flag.processing = False
+        flag.processing = [False, False, -1]
         flag.listening = False
         flag.timeout = 5
         flag.lastNonTimeOut = Idle()
