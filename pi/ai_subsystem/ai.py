@@ -20,6 +20,7 @@ class ai(subsystem):
         self.greeting = False
         self.greetingLength = 0
         self.questionAnswered = True
+        self.question = [0]
         super().__init__("ai", "id_only")
 
     def _run(self):
@@ -73,7 +74,7 @@ class ai(subsystem):
         if num_faces and self.last_face_number != num_faces.message:
             self.last_face_number = num_faces.message
 
-        if questionToAsk.message > -1 and self.questionAnswered == True:
+        if questionToAsk and questionToAsk.message > -1 and self.questionAnswered == True:
             self.robot.flags.question = questionToAsk.message
             self.questionAnswered = False
 
