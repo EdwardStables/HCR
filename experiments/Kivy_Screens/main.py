@@ -132,13 +132,15 @@ class BotEyelidImage(Widget):
         anim.start(self)
 
 class VotingButton(Button):
-    def pass_reaction(self,reaction):       #placeholder for now, will change later
-        print("user reacted with : "+str(reaction))
+    value = NumericProperty(0)
 
 class MenuScreen(Screen):
     pass
 
 class VotingScreen(Screen):
+    def pass_reaction(self,reaction):       #placeholder for now, will change later
+        print("user reacted with : "+str(reaction)) #Replace with message sending/data storing
+
     def to_eyes(self):
         self.manager.transition.direction='down'
         self.manager.current = 'eyes'
