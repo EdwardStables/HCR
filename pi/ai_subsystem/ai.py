@@ -68,8 +68,8 @@ class ai(subsystem):
             self.last_face_number = num_faces.message
 
         # Log question and answer in csv file
-        if self.robot.flags.processing[0] == True and answered == True:
-            log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer)
+        if self.robot.flags.processing[0] == True and answered.message == True:
+            log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer.message)
             try:
                 f = open("question_log.csv", 'w')
                 f.write(log)
