@@ -56,7 +56,11 @@ class ai(subsystem):
 
         # get whether question has been answered (bool)
         answered = self.get_messages(ref="question_answered")
-        answered = answer[0] if len(answer) else []
+        answered = answered[0] if len(answer) else []
+
+        # get whether question has been answered (bool)
+        questionToAsk = self.get_messages(ref="question_to_ask")
+        questionToAsk = questionToAsk[0] if len(answer) else []
 
         # Receive Number of faces data
         num_faces = self.get_messages(ref="num_faces")
@@ -67,8 +71,13 @@ class ai(subsystem):
         if num_faces and self.last_face_number != num_faces.message:
             self.last_face_number = num_faces.message
 
+        if questionToAsk.message > -1 and self.questionAnswered == True:
+            self.robot.flags.question = questionToAsk.message
+            self.questionAnswered = False
+
         # Log question and answer in csv file
         if self.robot.flags.processing[0] == True and answered.message == True:
+            self.questionAnswered = True
             log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer.message)
             try:
                 f = open("question_log.csv", 'w')
