@@ -1,17 +1,32 @@
+#include <Adafruit_NeoPixel.h>
 #include <ArduinoJson.h>
 #include <Servo.h>
 #include <Stewart.h>
 
+#define LED_PIN 6
+ 
+#define LED_COUNT 9
+
+enum colour {
+  yellow,
+  orange,
+  blue,
+  white
+};
+
+Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+
 int pins[] = {9, 10, 11, 12, 14, 15};
-bool once;
 
 Stewart Platform = Stewart(pins);
 
 void setup() {
+  strip.begin();
+  strip.show();
   // Initialize serial port
   Serial.begin(9600);
+  Serial.println("Serial connection established");
   while (!Serial) continue;
-  once = true;
 }
 
 void loop() {
@@ -22,14 +37,12 @@ void loop() {
   float move[6];
   
   if (Serial.available() > 0) {
-    once = false;
     
     while (Serial.available() > 0) {
       char received = Serial.read();
       inData += received;
     }
     
-    Serial.println(inData);
     char json[inData.length() + 1];
     inData.toCharArray(json, inData.length() + 1);
     Serial.println(json);
@@ -45,24 +58,44 @@ void loop() {
     }
   
     int instr = doc["instr"];
+    int x;
+    colour state_colour;
     switch (instr) {
 
       case 1:
+        Serial.print("Move pattern: ");
+        x = doc["pattern"];
+        Serial.println(x);
         movePattern(doc["pattern"]);
         break;
 
       case 2:
-        move[6] = doc["move"];
+        Serial.print("Make move: ");
+        for (int i = 0; i < 6; i++) {
+          move[i] = doc["move"][i];
+          Serial.print(move[i]);
+          Serial.print(" ");
+        }
+        Serial.println();
         makeMove(move);
         break;
 
       case 3:
-        offset[2] = doc["offset"];
+        Serial.print("Apply offset: ");
+        for (int i = 0; i < 2; i++) {
+          offset[i] = doc["offset"][i];
+          Serial.print(offset[i]);
+          Serial.print(" ");
+        }
+        Serial.println();
         applyOffset(offset);
         break;
 
       case 4:
-        changeColour(doc["colour"]);
+        Serial.print("Change colour: ");
+        state_colour = doc["colour"];
+        Serial.println(state_colour);
+        changeColour(state_colour);
         break;
       
       default:
@@ -73,42 +106,23 @@ void loop() {
 }
 
 void movePattern(int pattern) {
-  Serial.println("movePattern function");
-  Serial.print("Pattern ");
-  Serial.println(pattern);
-  /*switch (int(pattern)) {
 
+  float pattern0[][6] = {{0,0,-30,0,0,0},{0,0,20,0,0,0}};
+  float pattern1[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0},{0,0,20,0,0,0}};
+  
+  switch (pattern) {
     case 0:
-      Serial.println("case 0");
-      float dance[][6] = {{0,0,-30,0,0,0}};
-      iterateMoves(dance, 1);
+      iterateMoves(pattern0, 2);
       break;
 
     case 1:
-      Serial.println("case 1");
-      float test[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
-      iterateMoves(test, 2);
-      break; 
+      iterateMoves(pattern1, 3);
+      break;
 
     default:
-      Serial.println("why are you here");
-      
-  }*/
-
-  if (pattern == 0) {
-    Serial.println("case 0");
-    float dance[][6] = {{0,0,-30,0,0,0}};
-    iterateMoves(dance, 1);
-  } else {
-    if (pattern == 1) {
-      Serial.println("case 1");
-    float test[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0}};
-    iterateMoves(test, 2);
-    } else {
-      Serial.println("why are you here");
-    }
+      Serial.println("Unknown pattern");
+      break;
   }
-  Serial.println("how did you get here");
 }
 
 void iterateMoves(float moves[][6], int arraySize) {
@@ -122,12 +136,6 @@ void iterateMoves(float moves[][6], int arraySize) {
     rotat.x = moves[i][3];
     rotat.y = moves[i][4];
     rotat.z = moves[i][5];
-    Serial.println(trans.x);
-    Serial.println(trans.y);
-    Serial.println(trans.z);
-    Serial.println(rotat.x);
-    Serial.println(rotat.y);
-    Serial.println(rotat.z);
     
     Platform.applyTranslationAndRotation(trans, rotat);
     delay(500);
@@ -153,9 +161,10 @@ void makeMove(float move[]) {
   delay(500);
 }
 
-void applyOffset(float offset[2]) {
+void applyOffset(float offset[]) {
   int tx, ty, tz, rx, ry, rz;
   // Offset needs converting to xyz xyz
+  Serial.println("Offset applied (conversion still needed)");
   static Vector trans;
   static Vector rotat;
   trans.x = tx;
@@ -164,14 +173,37 @@ void applyOffset(float offset[2]) {
   rotat.x = rx;
   rotat.y = ry;
   rotat.z = rz;
-  Platform.applyTranslationAndRotation(trans, rotat);
+  //Platform.applyTranslationAndRotation(trans, rotat);
   delay(500);
 }
 
-void changeColour(String colour) {
-  // some colour change thing
+void changeColour(colour col) {
+  int r, g, b;
+  switch (col) {
+    case 0:
+      r = 255; g = 255; b = 0;
+      break;
+      
+    case 1:
+      r = 255; g = 165; b = 0;
+      break;
+      
+    case 2:
+      r = 0; g = 0; b = 255;
+      break;
+      
+    case 3: 
+      r, g, b = 255;
+      break;
+      
+    default: 
+      r, g, b = 0;
+  }
+  for (int i = 0; i < 9; i++) {
+    strip.setPixelColor(i, r, g, b);
+  }
   Serial.print("Colour changed to: ");
-  Serial.println(colour);
+  Serial.println(col);
 }
 
 void reset() {

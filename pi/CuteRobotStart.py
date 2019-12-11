@@ -7,12 +7,11 @@ from hcrutils.message import messagebody
 from hcrutils.message import mediator
 
 #Import each subsystem that needs to be launched
-#from serial_interface_subsystem.serial_interface import serial_interface
+from serial_interface_subsystem.serial_interface import serial_interface
 from status_subsystem.status import status
-#from face_recog_subsystem.face_recog import face_recog
+from face_recog_subsystem.face_recog import face_recog
 from ai_subsystem.ai import ai
-#from screen_subsystem.screen import screen
-from mic_subsystem.mic import mic
+from screen_subsystem.screen import screen
 
 def main():
     ROOT = os.getcwd()
@@ -20,10 +19,11 @@ def main():
     #Define each subsystem
     subsystems = [
         status(),
-        #face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen"]),
+        face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen"]),
         ai(),
-        #serial_interface(),
         mic(),
+        screen(ROOT),
+        serial_interface()
     ]
 
     print("Subsystems instantiated.")

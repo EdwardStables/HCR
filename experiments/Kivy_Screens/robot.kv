@@ -1,4 +1,15 @@
 #:kivy 1.11.1
+<RobotScreens>:
+    EyeScreen:
+        id: eyes
+        name: 'eyes'
+    MenuScreen:
+        id: menus
+        name: 'menus'
+    VotingScreen:
+        id: voting
+        name: 'voting'
+
 
 <EyeScreen>:
     FloatLayout:
@@ -33,43 +44,43 @@
             size_hint: (.1,.1)
             pos_hint:{"left":1,"top":1}
             
-        Button:
-            id: upbutton
-            text: 'Up'
-            on_press: root.move_look(0,0.2)
-            size_hint: (.1,.1)
-            pos_hint:{"top":1,"right":0.5}
-        Button:
-            id: rightbutton
-            text: 'Right'
-            on_press: root.move_look(0.2,0)
-            size_hint: (.1,.1)
-            pos_hint:{"top":0.5,"right":1}
-        Button:
-            id: downbutton
-            text: 'Down'
-            on_press: root.move_look(0,-0.2)
-            size_hint: (.1,.1)
-            pos_hint:{"right":0.5}
-        Button:
-            id: leftbutton
-            text: 'Left'
-            on_press: root.move_look(-0.2,0)
-            size_hint: (.1,.1)
-            pos_hint:{"top":0.5,"right":0.1}
+    #     Button:
+    #         id: upbutton
+    #         text: 'Up'
+    #         on_press: root.move_look(0,0.2)
+    #         size_hint: (.1,.1)
+    #         pos_hint:{"top":1,"right":0.5}
+    #     Button:
+    #         id: rightbutton
+    #         text: 'Right'
+    #         on_press: root.move_look(0.2,0)
+    #         size_hint: (.1,.1)
+    #         pos_hint:{"top":0.5,"right":1}
+    #     Button:
+    #         id: downbutton
+    #         text: 'Down'
+    #         on_press: root.move_look(0,-0.2)
+    #         size_hint: (.1,.1)
+    #         pos_hint:{"right":0.5}
+    #     Button:
+    #         id: leftbutton
+    #         text: 'Left'
+    #         on_press: root.move_look(-0.2,0)
+    #         size_hint: (.1,.1)
+    #         pos_hint:{"top":0.5,"right":0.1}
 
-    BoxLayout:
-        size_hint_x: 0.1
-        size_hint_y: 0.4
-	    Slider:
-	    	id:slider
-	    	backgroundwidth: 10
-	    	min:-1
-	    	max:1
-            value: 0
-	    	step:0.01
-	    	orientation: 'vertical'
-	    	on_value: root.mood = slider.value
+    # BoxLayout:
+    #     size_hint_x: 0.1
+    #     size_hint_y: 0.4
+	#     Slider:
+	#     	id:slider
+	#     	backgroundwidth: 10
+	#     	min:-1
+	#     	max:1
+    #         value: 0
+	#     	step:0.01
+	#     	orientation: 'vertical'
+	#     	on_value: root.mood = slider.value
 
 <MenuScreen>:
     BoxLayout:
@@ -88,46 +99,44 @@
         size_hint_y: 0.2
         pos_hint:{'top':1}
         Label:
-            text: "How was your experience today?"
+            text: "How was your experience today? (1=Poor, 5=Excellent)"
             pos_hint: {'top':1}
     BoxLayout:
         size_hint_y: 0.8
         pos_hint: {'bottom':1}
-        Button:
+        VotingButton:
             id: button1
             text: '1'
-            on_press:
-                root.pass_reaction(1)
-                root.manager.transition.direction='down'
-                root.manager.current = 'eyes'
-        Button:
+            value: 1
+        VotingButton:
             id: button2
             text: '2'
-            on_press:
-                root.pass_reaction(2)
-                root.manager.transition.direction='down'
-                root.manager.current = 'eyes'
-        Button:
+            value: 2
+        VotingButton:
             id: button3
             text: '3'
-            on_press:
-                root.pass_reaction(3)
-                root.manager.transition.direction='down'
-                root.manager.current = 'eyes'
-        Button:
+            value: 3
+        VotingButton:
             id: button4
             text: '4'
-            on_press:
-                root.pass_reaction(4)
-                root.manager.transition.direction='down'
-                root.manager.current = 'eyes'
-        Button:
+            value:4
+        VotingButton:
             id: button5
             text: '5'
-            on_press:
-                root.pass_reaction(5)
-                root.manager.transition.direction='down'
-                root.manager.current = 'eyes'
+            value:5
+
+<VotingButton>:
+    color: (0,0,0,1)
+    background_color: (0,0,0,0)
+    canvas.before:
+        Color:
+            rgb: (1,1,1)
+        Ellipse:
+            size: (self.size[0],self.size[0])
+            pos: (self.x,self.y+self.size[1]/2-self.size[0]/2)
+    on_press:
+        self.parent.parent.pass_reaction(self.value)
+        self.parent.parent.to_eyes()
 
 <EyeImage>:
     size_hint: (None,None)
