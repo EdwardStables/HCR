@@ -67,12 +67,12 @@ class mic(subsystem):
             print("I think you said '" + recognized_words + "'")
 
             # only store keywords recognized from the input audio string for mapping
-            recognized_keywords = [w for w in recognized_words.split() if w in emotion_keywords]
+            recognized_keywords = [w for w in recognized_words.split() if w in self.emotion_keywords]
 
             # iterate through found keywords in the audio for the current iteration
             for w in recognized_keywords:
                 # search for key-value pair in emotion dictionary mapping with current keyword
-                for k,v in emotion_dict.items():
+                for k,v in self.emotion_dict.items():
                     if w in v:
                         # increment score for relevant emotion(s) for current keyword by weighting of keyword
                         score[k] += v[w]
