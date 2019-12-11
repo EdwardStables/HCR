@@ -7,20 +7,18 @@
  
 #define LED_COUNT 9
 
-enum colour {
-  yellow,
-  orange,
-  blue,
-  white
-};
-
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-int pins[] = {9, 10, 11, 12, 14, 15};
+int pins[] = {14, 15, 9, 10, 11, 12};
 
 Stewart Platform = Stewart(pins);
 
+float position[2] = {0, 0};
+
+int loop_no = 0;
+
 void setup() {
+  pinMode(13, OUTPUT);
   strip.begin();
   strip.show();
   // Initialize serial port
@@ -30,6 +28,13 @@ void setup() {
 }
 
 void loop() {
+  if (loop_no % 5 == 0) {
+    digitalWrite(13, HIGH);
+  } else {
+    digitalWrite(13, LOW);
+  }
+  loop_no++;
+  
   // Setup JSON input, 1024 bytes
   StaticJsonDocument<1024> doc;
   String inData;
@@ -58,8 +63,7 @@ void loop() {
     }
   
     int instr = doc["instr"];
-    int x;
-    colour state_colour;
+    int x, colour;
     switch (instr) {
 
       case 1:
@@ -93,9 +97,9 @@ void loop() {
 
       case 4:
         Serial.print("Change colour: ");
-        state_colour = doc["colour"];
-        Serial.println(state_colour);
-        changeColour(state_colour);
+        colour = doc["colour"];
+        Serial.println(colour);
+        changeColour(colour);
         break;
       
       default:
@@ -162,30 +166,65 @@ void makeMove(float move[]) {
 }
 
 void applyOffset(float offset[]) {
-  int tx, ty, tz, rx, ry, rz;
-  // Offset needs converting to xyz xyz
-  Serial.println("Offset applied (conversion still needed)");
+  if (offset[0] == 0 && offset[1] == 0) {
+    return;
+  }
   static Vector trans;
   static Vector rotat;
-  trans.x = tx;
-  trans.y = ty;
-  trans.z = tz;
-  rotat.x = rx;
-  rotat.y = ry;
-  rotat.z = rz;
-  //Platform.applyTranslationAndRotation(trans, rotat);
-  delay(500);
+  float rz_adjust, rx_adjust, rz, rx;
+  rz_adjust = offset[0] * 24;
+  rx_adjust = offset[1] * 8;
+  
+  rz_adjust = position[0] + rz_adjust;
+  rx_adjust = position[1] + rx_adjust;
+  
+  if (rz_adjust > 24) {
+    rz_adjust = 24;
+  }
+  if (rz_adjust < -24) {
+    rz_adjust = -24;
+  }
+  if (rx_adjust > 8) {
+    rx_adjust = 8;
+  }
+  if (rx_adjust < -8) {
+    rx_adjust = -8;
+  }
+
+  Serial.println(rz_adjust);
+  Serial.println(rx_adjust);
+    
+  for (int i = 1; i <= 30; i++) {
+    trans.x = 0;
+    trans.y = 0;
+    trans.z = 0;
+    rotat.x = radians(position[1] + (rx_adjust - position[1]) * i / 30);
+    rotat.y = 0;
+    rotat.z = radians(position[0] + (rz_adjust - position[0]) * i / 30);
+    Platform.applyTranslationAndRotation(trans, rotat);
+    //Serial.print(i);
+    //Serial.println(" / 8 movement");
+    delayMicroseconds(5000 / sqrt(offset[0] * offset[0] + offset[1] * offset[1]));
+  }
+
+  position[0] = rz_adjust;
+  position[1] = rx_adjust;
+  Serial.println(position[0]);
+  Serial.println(position[1]);
+  
+  // Offset needs converting to xyz xyz
+  Serial.println("Offset applied (conversion still needed)");
 }
 
-void changeColour(colour col) {
+void changeColour(int colour) {
   int r, g, b;
-  switch (col) {
+  switch (colour) {
     case 0:
       r = 255; g = 255; b = 0;
       break;
       
     case 1:
-      r = 255; g = 165; b = 0;
+      r = 255; g = 100; b = 0;
       break;
       
     case 2:
@@ -193,7 +232,7 @@ void changeColour(colour col) {
       break;
       
     case 3: 
-      r, g, b = 255;
+      r = 255; g = 255; b = 255;
       break;
       
     default: 
@@ -202,8 +241,9 @@ void changeColour(colour col) {
   for (int i = 0; i < 9; i++) {
     strip.setPixelColor(i, r, g, b);
   }
+  strip.show();
   Serial.print("Colour changed to: ");
-  Serial.println(col);
+  Serial.println(colour);
 }
 
 void reset() {
@@ -215,6 +255,8 @@ void reset() {
   rotat.x = 0;
   rotat.y = 0;
   rotat.z = 0;
+  position[0] = 0;
+  position[1] = 0;
   Platform.applyTranslationAndRotation(trans, rotat);
   delay(500);
 }
