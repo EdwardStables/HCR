@@ -1,12 +1,28 @@
+#include <Adafruit_NeoPixel.h>
 #include <ArduinoJson.h>
 #include <Servo.h>
 #include <Stewart.h>
+
+#define LED_PIN 6
+ 
+#define LED_COUNT 9
+
+enum colour {
+  yellow,
+  orange,
+  blue,
+  white
+};
+
+Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 int pins[] = {9, 10, 11, 12, 14, 15};
 
 Stewart Platform = Stewart(pins);
 
 void setup() {
+  strip.begin();
+  strip.show();
   // Initialize serial port
   Serial.begin(9600);
   Serial.println("Serial connection established");
@@ -43,7 +59,7 @@ void loop() {
   
     int instr = doc["instr"];
     int x;
-    String colour = "";
+    colour state_colour;
     switch (instr) {
 
       case 1:
@@ -77,9 +93,9 @@ void loop() {
 
       case 4:
         Serial.print("Change colour: ");
-        colour = doc["colour"].as<String>();
-        Serial.println(colour);
-        changeColour(doc["colour"]);
+        state_colour = doc["colour"];
+        Serial.println(state_colour);
+        changeColour(state_colour);
         break;
       
       default:
@@ -145,7 +161,7 @@ void makeMove(float move[]) {
   delay(500);
 }
 
-void applyOffset(float offset[2]) {
+void applyOffset(float offset[]) {
   int tx, ty, tz, rx, ry, rz;
   // Offset needs converting to xyz xyz
   Serial.println("Offset applied (conversion still needed)");
@@ -161,10 +177,33 @@ void applyOffset(float offset[2]) {
   delay(500);
 }
 
-void changeColour(String colour) {
-  // some colour change thing
+void changeColour(colour col) {
+  int r, g, b;
+  switch (col) {
+    case 0:
+      r = 255; g = 255; b = 0;
+      break;
+      
+    case 1:
+      r = 255; g = 165; b = 0;
+      break;
+      
+    case 2:
+      r = 0; g = 0; b = 255;
+      break;
+      
+    case 3: 
+      r, g, b = 255;
+      break;
+      
+    default: 
+      r, g, b = 0;
+  }
+  for (int i = 0; i < 9; i++) {
+    strip.setPixelColor(i, r, g, b);
+  }
   Serial.print("Colour changed to: ");
-  Serial.println(colour);
+  Serial.println(col);
 }
 
 void reset() {
