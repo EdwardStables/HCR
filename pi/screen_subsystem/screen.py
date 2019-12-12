@@ -8,7 +8,7 @@ from kivy.app import App
 
 from kivy.uix.widget import Widget
 from kivy.uix.image import Image
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.slider import Slider
 from kivy.uix.button import Button
 
@@ -168,9 +168,13 @@ class RobotApp(App):
             ref.eyescreen.set_look(float(p[1]), float(p[2]))
 
         #Add more in the same way...
+        eye_lids = ref.op.get_messages("eyes")
+        if eye_lids:
+            p = eye_lids[0].message
+            #ref.eyescreen.mood = float(p[0])
 
     def build(self):
-        sm = ScreenManager()
+        sm = ScreenManager(transition=NoTransition())
         self.eyescreen = EyeScreen(name='eyes')
         self.menuscreen = MenuScreen(name='menus')
         self.votingscreen=VotingScreen(name='voting')
