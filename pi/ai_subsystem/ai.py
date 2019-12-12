@@ -153,29 +153,29 @@ class ai(subsystem):
 
         # Prepare colour and eye information
         if self.robot.flags.emotion[0] == "happy":
-            colour_data = ["colour", "yellow"]
-            eye_data = ["eye_lids", "bottom_covered"]
+            colour_data = ["colour", 0] # 0-3
+            eye_data = [-0.5] # 1 top maximum, -1 bottom maximum
             self.colour = (self.colour[1], "yellow")
             self.eyes = (self.eyes[1], "bottom_covered")
         elif self.robot.flags.emotion[0] == "sad":
-            colour_data = ["colour", "orange"]
-            eye_data = ["eye_lids", "top_covered"]
+            colour_data = ["colour", 1]
+            eye_data = [0.5]
             self.colour = (self.colour[1], "orange")
             self.eyes = (self.eyes[1], "top_covered")
         elif self.robot.flags.emotion[0] == "thinking":
-            colour_data = ["colour", "grey"]
-            eye_data = ["eye_lids", "look_to_corner"]
+            colour_data = ["colour", 3]
+            eye_data = [0]
             self.colour = (self.colour[1], "grey")
             self.eyes = (self.eyes[1], "look_to_corner")
         elif self.robot.flags.emotion[0] == "content":
             colour_data = ["colour", "blue"]
-            eye_data = ["eye_lids", "wide_open"]
-            self.colour = (self.colour[1], "blue")
+            eye_data = [0]
+            self.colour = (self.colour[1], 2)
             self.eyes = (self.eyes[1], "wide_open")
         
         # Case for no interactivity
         if self.robot.flags.interactivity == 0:
-            eye_data = ["eye_lids", "no_movement"]
+            eye_data = [0] # 0
 
         return colour_data, eye_data, movement_data
 
@@ -194,7 +194,7 @@ class ai(subsystem):
             self.send_message("serial_interface", "colour", colour_data)
 
         if self.eyes[0] != self.eyes[1] and self.robot.flags.interactivity > 0:
-            self.send_message("touch_screen", "eyes", eye_data)
+            self.send_message("screen", "eyes", eye_data)
 
         # Sort out Greeting
         if self.robot.flags.greeting == 0:
@@ -202,14 +202,14 @@ class ai(subsystem):
         elif self.robot.flags.greeting == self.greetingLength: # If we change the greeting length also change here
             self.greeting = True
             greetingMessage = ["initialise_greeting", self.greetingLength]
-            self.send_message("touch_screen", "greeting", greetingMessage)
+            self.send_message("screen", "greeting", greetingMessage)
             self.robot.flags.emotion = "happy",  self.greetingLength
             # Only make face happy, not movement
 
         # Sort out question initialisation
         if self.robot.flags.processing[1] == True:
             question = ["show_question", self.robot.flags.question]
-            self.send_message("touch_screen", "question", question)
+            self.send_message("screen", "question", question)
             self.robot.flags.processing[1] = False 
 
     def send_state_update(self, state):
