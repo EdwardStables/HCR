@@ -12,6 +12,7 @@ class serial_interface(subsystem):
     def __init__(self):
         super().__init__("serial_interface", "id_only")
         self.last_time = time()
+        self.FOLLOW = False
 
     def _run(self):
         self.ser = serial.Serial('/dev/ttyACM0', 9600, write_timeout = 1) # Establish the connection on a specific port#
@@ -37,9 +38,12 @@ class serial_interface(subsystem):
         msg = {}
         if message == "reset":
             msg = self.get_reset()
-        elif message == "move":
-            msg = self.get_moves(movement)
-        elif message == "offset":
+        elif message == "set_following":
+            self.FOLLOW = True
+        elif message == "idle":
+            self.FOLLOW = False
+            msg = self.get_idle(movement)
+        elif self.FOLLOW and message == "offset":
             msg = self.get_offset(movement)
         elif message == "colour":
             msg = self.get_colour(movement)
@@ -48,7 +52,6 @@ class serial_interface(subsystem):
         ser_msg = json.dumps(msg).encode()
         try:
             self.ser.write(ser_msg)
-            print("python side ------ ",ser_msg)
         except serial.serialutil.SerialTimeoutException as e:
             print("Serial restarting")
             self.ser = serial.Serial('/dev/ttyACM0', 9600, write_timeout = 1) # Establish the connection on a specific port#
@@ -57,11 +60,8 @@ class serial_interface(subsystem):
         #while self.ser.inWaiting():
         #    print(self.ser.readline())
 
-    def get_moves(self, movement):
-        return {
-            "instr":1,
-            "pattern":movement.message[1]
-            }
+    def get_idle(self, movement):
+        return { "instr":2 }
 
     def get_offset(self, movement):
         return {

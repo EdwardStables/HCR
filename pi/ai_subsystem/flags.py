@@ -12,7 +12,7 @@ class Flag(object):
         self.processing = [False, False, -1] # question asked, bool set for one cycle for messaging screen subsystem, question
         self.talking = True # Is the robot talking (if we had it...)
         self.question = -1 # -1 = Null question, 0+ = valid question
-        self.timeout = 5 # Timeout and its length in cycles
+        self.timeout = 20 # Timeout and its length in cycles
         self.emotion = ("", 0) # Emotion and its persistence in cycles
         self.greeting = 0 
         self.interactivity = 2 # 0 = no interactivity, 1 = no movement, 2 = all interactiity

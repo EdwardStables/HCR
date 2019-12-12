@@ -15,8 +15,8 @@ class ai(subsystem):
         self.last_face_number = 0
         self.last_emotion_read = ""
         self.movement = ("", "")
-        self.colour = ("", "")
-        self.eyes = ("", "")
+        self.colour = ("", "blue")
+        self.eyes = ("", "wide_open")
         self.greeting = False
         self.greetingLength = 0
         self.questionAnswered = True
@@ -50,7 +50,7 @@ class ai(subsystem):
                 self.last_state = new_state
                 self.send_state_update(new_state)
 
-            self.robot.flags.printFlags()
+            #self.robot.flags.printFlags()
     
     def check_messages(self):
         """
@@ -102,7 +102,13 @@ class ai(subsystem):
             self.robot.flags.emotion = emotion.message
 
         # Set flags.person
-        self.robot.flags.person = bool(num_faces)
+        #self.robot.flags.person = bool(num_faces)
+        if num_faces == []:
+            self.robot.flags.person = False
+        else:
+            self.robot.flags.person = num_faces.message
+
+        print(self.robot.flags.person)
         # Set internal last_face_number
         if num_faces and self.last_face_number != num_faces.message:
             self.last_face_number = num_faces.message
@@ -130,7 +136,7 @@ class ai(subsystem):
 
         # prepare movement information
         if self.robot.flags.currentState == "Idle":
-            movement_data = ["move", 0] # 0 means idling
+            movement_data = ["idle"] # 0 means idling
             self.movement = (self.movement[1], "idle")
         elif self.robot.flags.currentState == "WatchingWaiting":
             movement_data = ["set_following"] # 1 means following

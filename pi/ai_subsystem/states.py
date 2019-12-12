@@ -58,6 +58,7 @@ class TimingOut(State):
     def run(self):
         self.state_string = "TimingOut"
         flag.timeout = flag.timeout - 1
+        print("In timeout")
 
     def event(self, event):
         

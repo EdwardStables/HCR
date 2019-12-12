@@ -24,7 +24,7 @@ def main():
         ai(),
         #mic(),
         screen(ROOT),
-        #serial_interface()
+        serial_interface()
     ]
 
     print("Subsystems instantiated.")
