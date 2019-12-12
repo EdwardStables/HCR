@@ -81,14 +81,8 @@ void loop() {
         break;
 
       case 2:
-        Serial.print("Make move: ");
-        for (int i = 0; i < 6; i++) {
-          move[i] = doc["move"][i];
-          Serial.print(move[i]);
-          Serial.print(" ");
-        }
-        Serial.println();
-        makeMove(move);
+        Serial.print("Idle");
+        idle_state();
         break;
 
       case 3:
@@ -119,7 +113,9 @@ void loop() {
 void movePattern(int pattern) {
 
   float pattern0[][6] = {{0,0,-8,0,0,0},{0,0,8,0,0,0}};
-  float pattern1[][6] = {{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0}};
+  float pattern1[][6] = {{0,0,8,0,0,0},{0,0,-8,0,0,0}};
+  float pattern2[][6] = {{0,40,0,0,0,0},{0,-40,0,0,0,0}};
+  float pattern3[][6] = {{40,0,0,0,0,0},{-40,0,0,0,0,0}};
 
   Serial.println("movePattern");
   
@@ -129,7 +125,15 @@ void movePattern(int pattern) {
       break;
 
     case 1:
-      iterateMoves(pattern1, 13);
+      iterateMoves(pattern1, 2);
+      break;
+
+    case 2:
+      iterateMoves(pattern2, 2);
+      break;
+
+    case 3:
+      iterateMoves(pattern3, 2);
       break;
 
     default:
@@ -152,22 +156,17 @@ void iterateMoves(float moves[][6], int arraySize) {
     rotat.z = moves[i][5];
     
     Platform.applyTranslationAndRotation(trans, rotat);
-    delay(500);
+    delay(300);
   }
 }
 
-void makeMove(float move[]) {
-  static Vector trans;
-  static Vector rotat;
-  trans.x = move[0];
-  trans.y = move[1];
-  trans.z = move[2];
-  rotat.x = move[3];
-  rotat.y = move[4];
-  rotat.z = move[5];
-  
-  Platform.applyTranslationAndRotation(trans, rotat);
-  delay(500);
+void idle_state() {
+  while (Serial.available() <= 0) {
+    movePattern(1);
+    movePattern(2);
+    movePattern(3);
+  }
+  reset();
 }
 
 void applyOffset(float offset[]) {
