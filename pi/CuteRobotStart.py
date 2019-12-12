@@ -12,6 +12,7 @@ from status_subsystem.status import status
 from face_recog_subsystem.face_recog import face_recog
 from ai_subsystem.ai import ai
 from screen_subsystem.screen import screen
+#from mic_subsystem.mic import mic
 
 def main():
     ROOT = os.getcwd()
@@ -19,8 +20,9 @@ def main():
     #Define each subsystem
     subsystems = [
         status(),
-        face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen"]),
+        face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen", "serial_interface"]),
         ai(),
+        #mic(),
         screen(ROOT),
         serial_interface()
     ]

@@ -10,6 +10,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.slider import Slider
+from kivy.uix.button import Button
 
 from kivy.graphics import Rectangle, Color, Ellipse
 from kivy.animation import Animation
@@ -70,6 +71,7 @@ class EyeScreen(Screen):
         rpupil.target_add(x_change,y_change)
 
     def set_look(self,x_target,y_target): #give input as a value betewen 0 and 1 for relative positions
+
         x_target = round(x_target, 2)
         y_target = round(y_target, 2)
 
@@ -105,7 +107,7 @@ class PupilImage(Widget):
             abs_y=self.parent.y+self.parent.size[1]+self.parent.ids['toplid'].size[1]-0.7*self.size[1]
         elif (abs_y<self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]):
             abs_y=self.parent.y+self.parent.ids['bottomlid'].size[1]-0.3*self.size[1]
-        print(str(abs_x) + "," + str(abs_y))
+        #print(str(abs_x) + "," + str(abs_y))
         anim = Animation(x=abs_x,y=abs_y, duration =.1)
         anim.start(self)
 
@@ -135,13 +137,22 @@ class BotEyelidImage(Widget):
         anim = Animation(size=(self.size[0],-self.parent.size[1]), duration = 0.01)
         anim.start(self)
 
+class VotingButton(Button):
+    value = NumericProperty(0)
+
 class MenuScreen(Screen):
     pass
 
 class VotingScreen(Screen):
     def pass_reaction(self,reaction):       
-        #placeholder for now, will change later
-        pass
+        print("reacted with:", reaction)
+        
+    def to_eyes(self):
+        self.manager.transition.direction='down'
+        self.manager.current = 'eyes'
+
+class RobotScreens(ScreenManager):
+    pass
 
 class RobotApp(App):
     def __init__(self, op):
@@ -151,10 +162,10 @@ class RobotApp(App):
     @staticmethod
     def message_callback(ref, *largs):
         #Returns the normalized position of the largest face 
-        eye_pos = ref.op.get_messages("rel_faces")
+        eye_pos = ref.op.get_messages("movement")
         if eye_pos:
             p = eye_pos[0].message
-            ref.eyescreen.set_look(float(p[0]), float(p[1]))
+            ref.eyescreen.set_look(float(p[1]), float(p[2]))
 
         #Add more in the same way...
 

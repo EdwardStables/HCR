@@ -15,23 +15,34 @@ class ai(subsystem):
         self.last_face_number = 0
         self.last_emotion_read = ""
         self.movement = ("", "")
-        self.colour = ("", "")
-        self.eyes = ("", "")
+        self.colour = ("", "blue")
+        self.eyes = ("", "wide_open")
         self.greeting = False
+        self.greetingLength = 0
+        self.questionAnswered = True
+        self.question = [0]
         super().__init__("ai", "id_only")
-
 
     def _run(self):
         self.robot = StateMachine()
+        self.greetingLength = self.robot.flags.greetingLength
         t1 = time()
         self.status = "Idle()"
         self.last_state = "Idle()"
+        i = 0
         while True:
+            print(i)
+            i+=1
             slp = self.loop_time - (time() - t1)
             if slp > 0:
                 sleep(slp)
             t1 = time()
-            self.check_messages()
+
+            # Get messages from other subsystems, do logic, then send messages to subsystems
+            emotion, num_faces, questionToAsk, answer, answered = self.check_messages()
+            colour_data, eye_data, movement_data = self.create_message_data(emotion, num_faces, questionToAsk, answer, answered)
+            self.send_messages(colour_data, eye_data, movement_data)
+
             self.robot.event()
             new_state = self.robot.state
             if self.last_state != new_state:
@@ -39,55 +50,105 @@ class ai(subsystem):
                 self.last_state = new_state
                 self.send_state_update(new_state)
 
+            #self.robot.flags.printFlags()
+    
     def check_messages(self):
+        """
+        Check for messages from other subsystems for ai
+        """
         # Receive Emotion data
         emotion = self.get_messages(ref="speech_emotion")
         emotion = emotion[0] if len(emotion) else []
-        # Set flags.emotion
-        self.robot.flags.emotion = emotion.message
-        # Set internal last_eomtion_read
-        if emotion and emotion != self.last_emotion_read:
-            self.last_emotion_read = emotion.message
 
         # Receive Question Answers data
         answer = self.get_messages(ref="question_answer")
         answer = answer[0] if len(answer) else []
 
+        # get whether question has been answered (bool)
+        answered = self.get_messages(ref="question_answered")
+        answered = answered[0] if len(answer) else []
+
+        # get whether question has been answered (bool)
+        questionToAsk = self.get_messages(ref="question_to_ask")
+        questionToAsk = questionToAsk[0] if len(answer) else []
+
         # Receive Number of faces data
         num_faces = self.get_messages(ref="num_faces")
         num_faces = num_faces[0] if len(num_faces) else []
+
+        #Handle remaining messages
+        messages = self.get_messages()
+
+        #Subscriber updates
+        for m in messages:
+            if m.ref == "state_update_subscribe":
+                self.state_subs.append(m.sender_id)
+            if m.ref == "state_update_unsubscribe" and m.sender_id in self.state_subs:
+                self.state_subs.remove(m.sender_id)
+
+        return emotion, num_faces, questionToAsk, answer, answered
+
+    def create_message_data(self, emotion, num_faces, questionToAsk, answered, answer):
+        """
+        Based on message information, work out what information needs to be sent to the other subsystems
+        """
+        # Initialise
+        colour_data, eye_data, movement_data = [], [], []
+        
+        # Set internal last_eomtion_read
+        if emotion and emotion != self.last_emotion_read:
+            self.last_emotion_read = emotion.message
+            # Set flags.emotion
+            self.robot.flags.emotion = emotion.message
+
         # Set flags.person
-        self.robot.flags.person = bool(num_faces)
+        #self.robot.flags.person = bool(num_faces)
+        if num_faces == []:
+            self.robot.flags.person = False
+        else:
+            self.robot.flags.person = num_faces.message
+
+        print(self.robot.flags.person)
         # Set internal last_face_number
         if num_faces and self.last_face_number != num_faces.message:
             self.last_face_number = num_faces.message
 
+        if questionToAsk and questionToAsk.message > -1 and self.questionAnswered == True:
+            self.robot.flags.question = questionToAsk.message
+            self.questionAnswered = False
+
         # Log question and answer in csv file
-        if self.robot.flags.processing == True:
-            log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer)
+        # If answered exists then the answer must have also been sent so we don't check for it's existence
+        if answered and self.robot.flags.processing[0] == True and answered.message == True:
+            self.questionAnswered = True
+            log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer.message)
             try:
                 f = open("question_log.csv", 'w')
                 f.write(log)
             finally:
                 f.close()
             # Tell ai subsystem that processing is done so it will go back to WatchingWaiting()
-            self.robot.flags.processing = False
+            self.robot.flags.processing = [False, False, -1]
+            # Make robot sad for 5 cycles if results bad
+            if answer < 3:
+                self.robot.flags.emotion = ("sad", 5)
+        print(self.robot.flags.currentState)
 
         # prepare movement information
         if self.robot.flags.currentState == "Idle":
-            movement_data = ["move", 0] # 0 means idling
+            movement_data = ["idle"] # 0 means idling
             self.movement = (self.movement[1], "idle")
         elif self.robot.flags.currentState == "WatchingWaiting":
-            movement_data = ["move", 1] # 1 means following
+            movement_data = ["set_following"] # 1 means following
             self.movement = (self.movement[1], "following")
         elif self.robot.flags.currentState == "WatchingGreeting":
-            movement_data = ["move", 1]
+            movement_data = ["set_following"]
             self.movement = (self.movement[1], "following")
         elif self.robot.flags.currentState == "WatchingAskingQuestion":
-            movement_data = ["move", 1]
+            movement_data = ["set_following"]
             self.movement = (self.movement[1], "following")
         elif self.robot.flags.currentState == "Timeout":
-            movement_data = ["move", 1]
+            movement_data = ["set_following"]
             self.movement = (self.movement[1], "following")
 
         # Prepare colour and eye information
@@ -116,6 +177,15 @@ class ai(subsystem):
         if self.robot.flags.interactivity == 0:
             eye_data = ["eye_lids", "no_movement"]
 
+        return colour_data, eye_data, movement_data
+
+    def send_messages(self, colour_data, eye_data, movement_data):
+        print("colour:", colour_data)
+        print("eye_data:", eye_data)
+        print("movement:", movement_data)
+        """
+        Send messages to other subsystems from ai
+        """
         # Send messages as required
         if self.movement[0] != self.movement[1] and self.robot.flags.interactivity == 2:
             self.send_message("serial_interface", "movement", movement_data)
@@ -129,19 +199,18 @@ class ai(subsystem):
         # Sort out Greeting
         if self.robot.flags.greeting == 0:
             self.greeting = False
-        elif self.robot.flags.greeting == 3: # If we change the greeting length also change here
+        elif self.robot.flags.greeting == self.greetingLength: # If we change the greeting length also change here
             self.greeting = True
-            self.send_message("touch_screen", "greeting", ["initialise_greeting"])
+            greetingMessage = ["initialise_greeting", self.greetingLength]
+            self.send_message("touch_screen", "greeting", greetingMessage)
+            self.robot.flags.emotion = "happy",  self.greetingLength
+            # Only make face happy, not movement
 
-        #Handle remaining messages
-        messages = self.get_messages()
-
-        #Subscriber updates
-        for m in messages:
-            if m.ref == "state_update_subscribe":
-                self.state_subs.append(m.sender_id)
-            if m.ref == "state_update_unsubscribe" and m.sender_id in self.state_subs:
-                self.state_subs.remove(m.sender_id)
+        # Sort out question initialisation
+        if self.robot.flags.processing[1] == True:
+            question = ["show_question", self.robot.flags.question]
+            self.send_message("touch_screen", "question", question)
+            self.robot.flags.processing[1] = False 
 
     def send_state_update(self, state):
         self.status = state

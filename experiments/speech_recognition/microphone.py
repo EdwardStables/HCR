@@ -53,7 +53,7 @@ def speech_function(r, m):
         with m as source:  
             print("Please wait. Calibrating microphone...")  
             # listen for 5 seconds and create the ambient noise energy level  
-            r.adjust_for_ambient_noise(source, duration=5)
+            r.adjust_for_ambient_noise(source, duration=2)
             print("Hi, say something!")
             audio = r.listen(source, timeout = 10.0)  
         
@@ -63,7 +63,10 @@ def speech_function(r, m):
             # recognized_words_wit = r.recognize_wit(audio, key="TOUXYZM2RACQGS5ZQRJZQUQ36YK7EQKP")
             # print("Wit thinks you said '" + recognized_words_wit + "'")
 
-            recognized_words = r.recognize_google(audio)
+            with open("~/Desktop/My First Project-37c47c2b7999.json") as f:
+                creds = json.dumps(json.load(f))
+
+            recognized_words = self.r.recognize_google_cloud(audio, creds)
             print("I think you said '" + recognized_words + "'")
 
             # only store keywords recognized from the input audio string for mapping
@@ -109,6 +112,5 @@ def speech_setup(microphone_index_number, energy_threshold, pause_threshold):
     speech_function(r, m)
 
 if __name__ == "__main__":
-    speech_setup(2,8000, 0.5)
-
+    speech_setup(1,10000, 0.5)
 
