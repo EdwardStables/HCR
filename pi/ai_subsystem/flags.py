@@ -21,15 +21,16 @@ class Flag(object):
     
     def printFlags(self):
         print("\ntimeout:", self.timeout,
-	        "\nperson:", self.person, 
-            "\nlistening:", self.listening, 
-            "\nprocessing:", self.processing,
-            "\ntalking:", self.talking, 
-            "\nquestion:", self.question,
-            "\ninteractivity:", self.interactivity,
-            "\nemotion:", self.emotion[0], 
-            "\nemotionLock:", self.emotion[1],
-            "\ngreeting:", self.greeting,
-            "\ngreeting length:", self.greetingLength
-            )
+              "\ncurrentstate:", self.currentState,
+	      "\nperson:", self.person, 
+              "\nlistening:", self.listening, 
+              "\nprocessing:", self.processing,
+              "\ntalking:", self.talking, 
+              "\nquestion:", self.question,
+              "\ninteractivity:", self.interactivity,
+              "\nemotion:", self.emotion[0], 
+              "\nemotionLock:", self.emotion[1],
+              "\ngreeting:", self.greeting,
+              "\ngreeting length:", self.greetingLength
+              )
 

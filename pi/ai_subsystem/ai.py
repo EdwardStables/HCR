@@ -29,7 +29,10 @@ class ai(subsystem):
         t1 = time()
         self.status = "Idle()"
         self.last_state = "Idle()"
+        i = 0
         while True:
+            print(i)
+            i+=1
             slp = self.loop_time - (time() - t1)
             if slp > 0:
                 sleep(slp)
@@ -46,6 +49,8 @@ class ai(subsystem):
                 #print("state update:", new_state)
                 self.last_state = new_state
                 self.send_state_update(new_state)
+
+            self.robot.flags.printFlags()
     
     def check_messages(self):
         """
@@ -127,16 +132,16 @@ class ai(subsystem):
             movement_data = ["move", 0] # 0 means idling
             self.movement = (self.movement[1], "idle")
         elif self.robot.flags.currentState == "WatchingWaiting":
-            movement_data = ["move", 1] # 1 means following
+            movement_data = ["set_following"] # 1 means following
             self.movement = (self.movement[1], "following")
         elif self.robot.flags.currentState == "WatchingGreeting":
-            movement_data = ["move", 1] 
+            movement_data = ["set_following"]
             self.movement = (self.movement[1], "following")
         elif self.robot.flags.currentState == "WatchingAskingQuestion":
-            movement_data = ["move", 1]
+            movement_data = ["set_following"]
             self.movement = (self.movement[1], "following")
         elif self.robot.flags.currentState == "Timeout":
-            movement_data = ["move", 1]
+            movement_data = ["set_following"]
             self.movement = (self.movement[1], "following")
 
         # Prepare colour and eye information
@@ -168,6 +173,9 @@ class ai(subsystem):
         return colour_data, eye_data, movement_data
 
     def send_messages(self, colour_data, eye_data, movement_data):
+        print("colour:", colour_data)
+        print("eye_data:", eye_data)
+        print("movement:", movement_data)
         """
         Send messages to other subsystems from ai
         """
