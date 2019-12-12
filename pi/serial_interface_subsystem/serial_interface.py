@@ -30,32 +30,31 @@ class serial_interface(subsystem):
         movement = self.get_messages("movement")
         if len(movement) == 0:
             return
-        else:
-            movement = movement[-1]
 
-        message = movement.message[0]
-        
-        msg = {}
-        if message == "reset":
-            msg = self.get_reset()
-        elif message == "set_following":
-            self.FOLLOW = True
-        elif message == "idle":
-            self.FOLLOW = False
-            msg = self.get_idle(movement)
-        elif self.FOLLOW and message == "offset":
-            msg = self.get_offset(movement)
-        elif message == "colour":
-            msg = self.get_colour(movement)
-
-
-        ser_msg = json.dumps(msg).encode()
-        try:
-            self.ser.write(ser_msg)
-        except serial.serialutil.SerialTimeoutException as e:
-            print("Serial restarting")
-            self.ser = serial.Serial('/dev/ttyACM0', 9600, write_timeout = 1) # Establish the connection on a specific port#
-
+        for m in movement:
+            message = m.message[0]
+            msg = {}
+            if message == "reset":
+                msg = self.get_reset()
+            elif message == "set_following":
+                self.FOLLOW = True
+            elif message == "idle":
+                print("IDLE START")
+                self.FOLLOW = False
+                msg = self.get_idle(m)
+            elif self.FOLLOW and message == "offset":
+                msg = self.get_offset(m)
+            elif message == "colour":
+                msg = self.get_colour(m)
+    
+    
+            ser_msg = json.dumps(msg).encode()
+            try:
+                self.ser.write(ser_msg)
+            except serial.serialutil.SerialTimeoutException as e:
+                print("Serial restarting")
+                self.ser = serial.Serial('/dev/ttyACM0', 9600, write_timeout = 1) # Establish the connection on a specific port#
+    
         
         #while self.ser.inWaiting():
         #    print(self.ser.readline())
@@ -72,7 +71,7 @@ class serial_interface(subsystem):
     def get_colour(self, movement):
         return {
             "instr":4,
-            "colour": movement[1]
+            "colour": movement.message[1]
         }
 
     def get_reset(self):
