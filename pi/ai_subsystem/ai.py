@@ -40,8 +40,8 @@ class ai(subsystem):
 
 
             # Get messages from other subsystems, do logic, then send messages to subsystems
-            emotion, num_faces, questionToAsk, answer, answered = self.check_messages()
-            colour_data, eye_data, movement_data = self.create_message_data(emotion, num_faces, questionToAsk, answer, answered)
+            emotion, num_faces, answer, answered = self.check_messages()
+            colour_data, eye_data, movement_data = self.create_message_data(emotion, num_faces, answer, answered)
             self.send_messages(colour_data, eye_data, movement_data)
 
             self.robot.event()
@@ -84,9 +84,9 @@ class ai(subsystem):
             if m.ref == "state_update_unsubscribe" and m.sender_id in self.state_subs:
                 self.state_subs.remove(m.sender_id)
 
-        return emotion, num_faces, questionToAsk, answer, answered
+        return emotion, num_faces, answer, answered
 
-    def create_message_data(self, emotion, num_faces, questionToAsk, answered, answer):
+    def create_message_data(self, emotion, num_faces, answered, answer):
         """
         Based on message information, work out what information needs to be sent to the other subsystems
         """
@@ -110,10 +110,6 @@ class ai(subsystem):
         # Set internal last_face_number
         if num_faces and self.last_face_number != num_faces.message:
             self.last_face_number = num_faces.message
-
-        if questionToAsk and questionToAsk.message > -1 and self.questionAnswered == True:
-            self.robot.flags.question = questionToAsk.message
-            self.questionAnswered = False
 
         # Log question and answer in csv file
         # If answered exists then the answer must have also been sent so we don't check for it's existence
