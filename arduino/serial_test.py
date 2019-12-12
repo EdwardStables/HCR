@@ -1,6 +1,6 @@
 from time import sleep
 import serial
-ser = serial.Serial('COM3', 9600) # Establish the connection on a specific port#
+ser = serial.Serial('/dev/ttyACM0', 9600) # Establish the connection on a specific port#
 
 while True:
      command = input("Enter command: ")
