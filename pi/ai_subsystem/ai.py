@@ -34,24 +34,26 @@ class ai(subsystem):
             if slp > 0:
                 sleep(slp)
             t1 = time()
-            self.check_messages()
+
+            # Get messages from other subsystems, do logic, then send messages to subsystems
+            emotion, num_faces, questionToAsk, answer, answered = self.check_messages()
+            colour_data, eye_data, movement_data = self.create_message_data(emotion, num_faces, questionToAsk, answer, answered)
+            self.send_messages(colour_data, eye_data, movement_data)
+
             self.robot.event()
             new_state = self.robot.state
             if self.last_state != new_state:
                 #print("state update:", new_state)
                 self.last_state = new_state
                 self.send_state_update(new_state)
-
+    
     def check_messages(self):
+        """
+        Check for messages from other subsystems for ai
+        """
         # Receive Emotion data
         emotion = self.get_messages(ref="speech_emotion")
         emotion = emotion[0] if len(emotion) else []
-        
-        # Set internal last_eomtion_read
-        if emotion and emotion != self.last_emotion_read:
-            self.last_emotion_read = emotion.message
-            # Set flags.emotion
-            self.robot.flags.emotion = emotion.message
 
         # Receive Question Answers data
         answer = self.get_messages(ref="question_answer")
@@ -68,6 +70,32 @@ class ai(subsystem):
         # Receive Number of faces data
         num_faces = self.get_messages(ref="num_faces")
         num_faces = num_faces[0] if len(num_faces) else []
+
+        #Handle remaining messages
+        messages = self.get_messages()
+
+        #Subscriber updates
+        for m in messages:
+            if m.ref == "state_update_subscribe":
+                self.state_subs.append(m.sender_id)
+            if m.ref == "state_update_unsubscribe" and m.sender_id in self.state_subs:
+                self.state_subs.remove(m.sender_id)
+
+        return emotion, num_faces, questionToAsk, answer, answered
+
+    def create_message_data(self, emotion, num_faces, questionToAsk, answered, answer):
+        """
+        Based on message information, work out what information needs to be sent to the other subsystems
+        """
+        # Initialise
+        colour_data, eye_data, movement_data = [], [], []
+        
+        # Set internal last_eomtion_read
+        if emotion and emotion != self.last_emotion_read:
+            self.last_emotion_read = emotion.message
+            # Set flags.emotion
+            self.robot.flags.emotion = emotion.message
+
         # Set flags.person
         self.robot.flags.person = bool(num_faces)
         # Set internal last_face_number
@@ -137,6 +165,12 @@ class ai(subsystem):
         if self.robot.flags.interactivity == 0:
             eye_data = ["eye_lids", "no_movement"]
 
+        return colour_data, eye_data, movement_data
+
+    def send_messages(self, colour_data, eye_data, movement_data):
+        """
+        Send messages to other subsystems from ai
+        """
         # Send messages as required
         if self.movement[0] != self.movement[1] and self.robot.flags.interactivity == 2:
             self.send_message("serial_interface", "movement", movement_data)
@@ -162,16 +196,6 @@ class ai(subsystem):
             question = ["show_question", self.robot.flags.question]
             self.send_message("touch_screen", "question", question)
             self.robot.flags.processing[1] = False 
-
-        #Handle remaining messages
-        messages = self.get_messages()
-
-        #Subscriber updates
-        for m in messages:
-            if m.ref == "state_update_subscribe":
-                self.state_subs.append(m.sender_id)
-            if m.ref == "state_update_unsubscribe" and m.sender_id in self.state_subs:
-                self.state_subs.remove(m.sender_id)
 
     def send_state_update(self, state):
         self.status = state

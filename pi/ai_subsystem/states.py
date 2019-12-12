@@ -27,6 +27,7 @@ class Idle(State):
     """
     def run(self):
         self.state_string = "Idle"
+        flag.currentState = self.state_string
         flag.talking = False
         flag.processing = [False, False, -1]
         flag.listening = False
@@ -47,6 +48,13 @@ class Idle(State):
 
 
 class TimingOut(State):
+    """
+    TimingOut State
+
+    - If a person is lost for a split second, don't immidiately go to idle, go here.
+    - If timeout = 0 THEN return to idle.
+    - Otherwise remain in this state and decrement timeout by one.   
+    """
     def run(self):
         self.state_string = "TimingOut"
         flag.timeout = flag.timeout - 1
@@ -71,11 +79,12 @@ class WatchingGreeting(State):
 
     - Robot watches person.
     - The robot welcomes them and moves into the WatchingWaiting state.
-    - If the person leaves then return to Idle state.
+    - If the person leaves then return to Idle state (via timeout state).
     - Otherwise remain in this state.
     """
     def run(self): 
         self.state_string = "WatchingGreeting"
+        flag.currentState = self.state_string
         flag.talking = True
         flag.listen = False
         flag.lastNonTimeOut = WatchingGreeting()
@@ -101,11 +110,12 @@ class WatchingWaiting(State):
     WatchingWaiting State
 
     - If the processing flag is set then move to WatchingProcessing state.
-    - If the person leaves then return to Idle state.
+    - If the person leaves then return to Idle state (via timeout state).
     - Otherwise remain in this state.   
     """
     def run(self): 
         self.state_string = "WatchingWaiting"
+        flag.currentState = self.state_string
         flag.listening = False
         flag.talking = False
         flag.lastNonTimeOut = WatchingWaiting()
@@ -138,6 +148,7 @@ class WatchingAskingQuestion(State):
     """
     def run(self): 
         self.state_string = "WatchingAskingQuestion"
+        flag.currentState = self.state_string
         flag.listening = True
         flag.lastNonTimeOut = WatchingAskingQuestion()
         if flag.emotion[1] == 0:

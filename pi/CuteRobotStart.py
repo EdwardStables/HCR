@@ -21,9 +21,9 @@ def main():
         status(),
         #face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen"]),
         ai(),
-        mic(),
-        screen(ROOT),
-        serial_interface()
+        #mic(),
+        #screen(ROOT),
+        #serial_interface()
     ]
 
     print("Subsystems instantiated.")
