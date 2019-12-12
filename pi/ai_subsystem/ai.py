@@ -18,12 +18,14 @@ class ai(subsystem):
         self.colour = ("", "")
         self.eyes = ("", "")
         self.greeting = False
-        self.greetingLength = self.robot.flags.greetingLength
+        self.greetingLength = 0
         self.questionAnswered = True
+        self.question = [0]
         super().__init__("ai", "id_only")
 
     def _run(self):
         self.robot = StateMachine()
+        self.greetingLength = self.robot.flags.greetingLength
         t1 = time()
         self.status = "Idle()"
         self.last_state = "Idle()"
@@ -44,11 +46,12 @@ class ai(subsystem):
         # Receive Emotion data
         emotion = self.get_messages(ref="speech_emotion")
         emotion = emotion[0] if len(emotion) else []
-        # Set flags.emotion
-        self.robot.flags.emotion = emotion.message
+        
         # Set internal last_eomtion_read
         if emotion and emotion != self.last_emotion_read:
             self.last_emotion_read = emotion.message
+            # Set flags.emotion
+            self.robot.flags.emotion = emotion.message
 
         # Receive Question Answers data
         answer = self.get_messages(ref="question_answer")
@@ -71,12 +74,13 @@ class ai(subsystem):
         if num_faces and self.last_face_number != num_faces.message:
             self.last_face_number = num_faces.message
 
-        if questionToAsk.message > -1 and self.questionAnswered == True:
+        if questionToAsk and questionToAsk.message > -1 and self.questionAnswered == True:
             self.robot.flags.question = questionToAsk.message
             self.questionAnswered = False
 
         # Log question and answer in csv file
-        if self.robot.flags.processing[0] == True and answered.message == True:
+        # If answered exists then the answer must have also been sent so we don't check for it's existence
+        if answered and self.robot.flags.processing[0] == True and answered.message == True:
             self.questionAnswered = True
             log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer.message)
             try:
@@ -89,6 +93,7 @@ class ai(subsystem):
             # Make robot sad for 5 cycles if results bad
             if answer < 3:
                 self.robot.flags.emotion = ("sad", 5)
+        print(self.robot.flags.currentState)
 
         # prepare movement information
         if self.robot.flags.currentState == "Idle":

@@ -1,7 +1,6 @@
 # states.py
 
 from .flags import Flag
-from .misc import *
 
 # Set up the flags
 flag = Flag()
@@ -29,7 +28,7 @@ class Idle(State):
     def run(self):
         self.state_string = "Idle"
         flag.talking = False
-        flag.processing = False
+        flag.processing = [False, False, -1]
         flag.listening = False
         flag.timeout = 5
         flag.lastNonTimeOut = Idle()
@@ -149,7 +148,7 @@ class WatchingAskingQuestion(State):
     def event(self, event):
         
         if flag.person == True and flag.processing[0] == False:
-            flag.question == -1
+            flag.question = -1
             return WatchingWaiting()
         
         if flag.person == False:
