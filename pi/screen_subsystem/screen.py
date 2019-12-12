@@ -144,8 +144,15 @@ class MenuScreen(Screen):
     pass
 
 class VotingScreen(Screen):
+
+    def __init__(self, name, op):
+        self.op = op
+        super().__init__(name=name)
+
     def pass_reaction(self,reaction):       
         print("reacted with:", reaction)
+        self.op.send_message("ai", "question_answer", reaction)
+        
         
     def to_eyes(self):
         self.manager.transition.direction='down'
@@ -171,13 +178,18 @@ class RobotApp(App):
         eye_lids = ref.op.get_messages("eyes")
         if eye_lids:
             p = eye_lids[0].message
-            #ref.eyescreen.mood = float(p[0])
+            ref.eyescreen.mood = float(p[0])
+
+        question = ref.op.get_messages("askquestion")
+        if question:
+            ref.root.current = "voting"
+            
 
     def build(self):
         sm = ScreenManager(transition=NoTransition())
         self.eyescreen = EyeScreen(name='eyes')
         self.menuscreen = MenuScreen(name='menus')
-        self.votingscreen=VotingScreen(name='voting')
+        self.votingscreen=VotingScreen(name='voting', op=self.op)
 
         sm.add_widget(self.eyescreen)
         sm.add_widget(self.menuscreen)

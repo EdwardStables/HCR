@@ -87,8 +87,8 @@ class mic(subsystem):
             #print ("I am " + str(max(score, key=score.get)))
             self.send_emotion(max(score, key=score.get))
 
-        except sr.UnknownValueError:  
-            print("Could not understand audio")  
+        except sr.UnknownValueError as e:  
+            print("Could not understand audio:", e)  
         except sr.RequestError as e:  
             print("Error; {0}".format(e))  
     

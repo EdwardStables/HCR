@@ -68,11 +68,7 @@ class ai(subsystem):
 
         # get whether question has been answered (bool)
         answered = self.get_messages(ref="question_answered")
-        answered = answered[0] if len(answer) else []
-
-        # get whether question has been answered (bool)
-        questionToAsk = self.get_messages(ref="question_to_ask")
-        questionToAsk = questionToAsk[0] if len(answer) else []
+        answered = answered[0] if len(answered) else []
 
         # Receive Number of faces data
         num_faces = self.get_messages(ref="num_faces")
@@ -209,12 +205,6 @@ class ai(subsystem):
             self.robot.flags.emotion = "happy",  self.greetingLength
             # Only make face happy, not movement
 
-        # Sort out question initialisation
-        if self.robot.flags.processing[1] == True:
-            question = ["show_question", self.robot.flags.question]
-            self.send_message("screen", "question", question)
-            self.robot.flags.processing[1] = False 
-        
         # Send Question
         if (self.robot.flags.sendQuestion == [True, False]):
                 self.robot.flags.sendQuestion == [True, True]
