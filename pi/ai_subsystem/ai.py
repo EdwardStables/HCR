@@ -119,8 +119,9 @@ class ai(subsystem):
             self.questionAnswered = True
             log = "%s, %i, %i" % (datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), self.robot.flags.question, answer.message)
             print("Log:", log)
-            with open("question_log.csv", 'w') as f:
+            with open("question_log.csv", 'a+') as f:
                 f.write(log)
+                f.close()
             # Tell ai subsystem that processing is done so it will go back to WatchingWaiting()
             self.robot.flags.processing = [False, False, -1]
             # Make robot sad for 5 cycles if results bad
