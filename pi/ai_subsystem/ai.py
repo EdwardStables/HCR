@@ -152,22 +152,22 @@ class ai(subsystem):
             self.movement = (self.movement[1], "following")
 
         # Prepare colour and eye information
-        if self.robot.flags.emotion == "happy":
+        if self.robot.flags.emotion[0] == "happy":
             colour_data = ["colour", "yellow"]
             eye_data = ["eye_lids", "bottom_covered"]
             self.colour = (self.colour[1], "yellow")
             self.eyes = (self.eyes[1], "bottom_covered")
-        elif self.robot.flags.emotion == "sad":
+        elif self.robot.flags.emotion[0] == "sad":
             colour_data = ["colour", "orange"]
             eye_data = ["eye_lids", "top_covered"]
             self.colour = (self.colour[1], "orange")
             self.eyes = (self.eyes[1], "top_covered")
-        elif self.robot.flags.emotion == "thinking":
+        elif self.robot.flags.emotion[0] == "thinking":
             colour_data = ["colour", "grey"]
             eye_data = ["eye_lids", "look_to_corner"]
             self.colour = (self.colour[1], "grey")
             self.eyes = (self.eyes[1], "look_to_corner")
-        elif self.robot.flags.emotion == "content":
+        elif self.robot.flags.emotion[0] == "content":
             colour_data = ["colour", "blue"]
             eye_data = ["eye_lids", "wide_open"]
             self.colour = (self.colour[1], "blue")
