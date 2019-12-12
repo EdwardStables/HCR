@@ -79,7 +79,8 @@ class ai(subsystem):
             self.questionAnswered = False
 
         # Log question and answer in csv file
-        if self.robot.flags.processing[0] == True and answered.message == True:
+        # If answered exists then the answer must have also been sent so we don't check for it's existence
+        if answered and self.robot.flags.processing[0] == True and answered.message == True:
             self.questionAnswered = True
             log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer.message)
             try:
