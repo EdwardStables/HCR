@@ -20,6 +20,7 @@ class ai(subsystem):
         self.greeting = False
         self.greetingLength = 0
         self.questionAnswered = True
+        self.question = [0]
         super().__init__("ai", "id_only")
 
     def _run(self):
@@ -78,6 +79,7 @@ class ai(subsystem):
             self.questionAnswered = False
 
         # Log question and answer in csv file
+        # If answered exists then the answer must have also been sent so we don't check for it's existence
         if answered and self.robot.flags.processing[0] == True and answered.message == True:
             self.questionAnswered = True
             log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer.message)

@@ -18,9 +18,14 @@ float position[2] = {0, 0};
 int loop_no = 0;
 
 void setup() {
-  pinMode(13, OUTPUT);
+  reset();
   strip.begin();
+  for (int i = 0; i < 9; i++) {
+    strip.setPixelColor(i, 0, 0, 0);
+  }
   strip.show();
+
+  pinMode(13, OUTPUT);
   // Initialize serial port
   Serial.begin(9600);
   Serial.println("Serial connection established");
@@ -47,9 +52,11 @@ void loop() {
       char received = Serial.read();
       inData += received;
     }
-    
-    char json[inData.length() + 1];
-    inData.toCharArray(json, inData.length() + 1);
+
+    int last_instr = inData.lastIndexOf('{');
+    String newInput = inData.substring(last_instr, inData.length());
+    char json[newInput.length() + 1];
+    newInput.toCharArray(json, inData.length() + 1);
     Serial.println(json);
     
     // Deserialize the JSON document
@@ -111,8 +118,10 @@ void loop() {
 
 void movePattern(int pattern) {
 
-  float pattern0[][6] = {{0,0,-30,0,0,0},{0,0,20,0,0,0}};
-  float pattern1[][6] = {{0,0,-30,0,0,0},{0,0,40,0,0,0},{0,0,20,0,0,0}};
+  float pattern0[][6] = {{0,0,-8,0,0,0},{0,0,8,0,0,0}};
+  float pattern1[][6] = {{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0},{0,0,-8,0,0,0},{0,0,8,0,0,0}};
+
+  Serial.println("movePattern");
   
   switch (pattern) {
     case 0:
@@ -120,7 +129,7 @@ void movePattern(int pattern) {
       break;
 
     case 1:
-      iterateMoves(pattern1, 3);
+      iterateMoves(pattern1, 13);
       break;
 
     default:
@@ -133,6 +142,7 @@ void iterateMoves(float moves[][6], int arraySize) {
   static Vector trans;
   static Vector rotat;
   // Loops through moves Array and applies moves
+
   for (int i = 0; i < arraySize; i++) {
     trans.x = moves[i][0];
     trans.y = moves[i][1];
@@ -143,11 +153,6 @@ void iterateMoves(float moves[][6], int arraySize) {
     
     Platform.applyTranslationAndRotation(trans, rotat);
     delay(500);
-    
-    // Checks if new instruction is available IE interrupts
-    if (Serial.available() > 0) {
-      loop();
-    }
   }
 }
 
@@ -172,8 +177,8 @@ void applyOffset(float offset[]) {
   static Vector trans;
   static Vector rotat;
   float rz_adjust, rx_adjust, rz, rx;
-  rz_adjust = offset[0] * 24;
-  rx_adjust = offset[1] * 8;
+  rz_adjust = offset[0] * -24;
+  rx_adjust = offset[1] * -8;
   
   rz_adjust = position[0] + rz_adjust;
   rx_adjust = position[1] + rx_adjust;
@@ -194,17 +199,23 @@ void applyOffset(float offset[]) {
   Serial.println(rz_adjust);
   Serial.println(rx_adjust);
     
-  for (int i = 1; i <= 30; i++) {
+  for (int i = 1; i <= 35; i++) {
     trans.x = 0;
     trans.y = 0;
     trans.z = 0;
-    rotat.x = radians(position[1] + (rx_adjust - position[1]) * i / 30);
+    rotat.x = radians(position[1] + (rx_adjust - position[1]) * i / 35);
     rotat.y = 0;
-    rotat.z = radians(position[0] + (rz_adjust - position[0]) * i / 30);
+    rotat.z = radians(position[0] + (rz_adjust - position[0]) * i / 35);
     Platform.applyTranslationAndRotation(trans, rotat);
     //Serial.print(i);
     //Serial.println(" / 8 movement");
-    delayMicroseconds(5000 / sqrt(offset[0] * offset[0] + offset[1] * offset[1]));
+
+    if (Serial.available() > 0) {
+      position[0] = position[0] + (rz_adjust - position[0]) * i / 35;
+      position[1] = position[1] + (rx_adjust - position[1]) * i / 35;
+      return;
+    }
+    //delayMicroseconds(5000 / sqrt(offset[0] * offset[0] + offset[1] * offset[1]));
   }
 
   position[0] = rz_adjust;
@@ -258,5 +269,6 @@ void reset() {
   position[0] = 0;
   position[1] = 0;
   Platform.applyTranslationAndRotation(trans, rotat);
+  Serial.println("Reset completed");
   delay(500);
 }

@@ -148,7 +148,7 @@ class WatchingAskingQuestion(State):
     def event(self, event):
         
         if flag.person == True and flag.processing[0] == False:
-            flag.question == -1
+            flag.question = -1
             return WatchingWaiting()
         
         if flag.person == False:
