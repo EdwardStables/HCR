@@ -126,6 +126,7 @@ class ai(subsystem):
             # Make robot sad for 5 cycles if results bad
             if answer < 3:
                 self.robot.flags.emotion = ("sad", 5)
+        print(self.robot.flags.currentState)
 
         # prepare movement information
         if self.robot.flags.currentState == "Idle":

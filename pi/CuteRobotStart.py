@@ -20,7 +20,7 @@ def main():
     #Define each subsystem
     subsystems = [
         status(),
-        face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen"]),
+        face_recog(ROOT, 0, num_sub=["ai"], rel_sub=["screen", "serial_interface"]),
         ai(),
         #mic(),
         screen(ROOT),
