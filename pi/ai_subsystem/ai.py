@@ -38,6 +38,7 @@ class ai(subsystem):
                 sleep(slp)
             t1 = time()
 
+
             # Get messages from other subsystems, do logic, then send messages to subsystems
             emotion, num_faces, questionToAsk, answer, answered = self.check_messages()
             colour_data, eye_data, movement_data = self.create_message_data(emotion, num_faces, questionToAsk, answer, answered)
@@ -51,6 +52,7 @@ class ai(subsystem):
                 self.send_state_update(new_state)
 
             #self.robot.flags.printFlags()
+            
     
     def check_messages(self):
         """
@@ -211,6 +213,11 @@ class ai(subsystem):
             question = ["show_question", self.robot.flags.question]
             self.send_message("screen", "question", question)
             self.robot.flags.processing[1] = False 
+        
+        # Send Question
+        if (self.robot.flags.sendQuestion == [True, False]):
+                self.robot.flags.sendQuestion == [True, True]
+                self.send_message("screen", "askquestion", [])
 
     def send_state_update(self, state):
         self.status = state
