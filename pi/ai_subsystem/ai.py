@@ -122,6 +122,7 @@ class ai(subsystem):
         # Log question and answer in csv file
         # If answered exists then the answer must have also been sent so we don't check for it's existence
         if answered and self.robot.flags.processing[0] == True and answered.message == True:
+            self.robot.flags.stateLock = False
             self.questionAnswered = True
             log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer.message)
             try:
@@ -218,7 +219,7 @@ class ai(subsystem):
         if (self.robot.flags.sendQuestion == [True, False]):
                 self.robot.flags.sendQuestion == [True, True]
                 self.send_message("screen", "askquestion", [])
-
+                
     def send_state_update(self, state):
         self.status = state
         for s in self.state_subs:
