@@ -14,7 +14,7 @@ class face_recog(subsystem):
     """
 
 
-    def __init__(self, root_path, video_capture_num, pos_sub=[], num_sub=[], rel_sub=[]):
+    def __init__(self, root_path, video_capture_num, offload=False, pos_sub=[], num_sub=[], rel_sub=[]):
         """Root path required for openCV pathing to work.
         Default subscribers are subscribers that want to always get faces.
         Each subscriber should be in the format (str, bool) where the string
@@ -31,11 +31,14 @@ class face_recog(subsystem):
         self.width = self.video_capture.get(3)
         self.height = self.video_capture.get(4)
 
-        self.relative_face_buffer= deque(maxlen=5)
+        self.relative_face_buffer= deque(maxlen=3)
 
         self.position_subscribers = pos_sub
         self.number_subscribers = num_sub
         self.relative_subscribers = rel_sub
+
+        self.OFFLOADING = offload
+
         super().__init__("face_recog", "id_only")
 
     def _run(self):
@@ -65,16 +68,27 @@ class face_recog(subsystem):
 
             ret, frame = self.video_capture.read()
             frame = cv.resize(frame, (640,480))
-            gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-            faces = self.faceCascade.detectMultiScale(
+            if self.OFFLOADING:
+                position = self.run_offloaded_face_detect(frame)
+            else:
+                position = self.run_face_detect(frame)
+
+            self.send_faces(position)
+
+    def run_offloaded_face_detect(self, frame):
+        pass
+                
+    def run_face_detect(self, frame):
+        gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        faces = self.faceCascade.detectMultiScale(
                 gray,
                 scaleFactor=1.1,
                 minNeighbors=5,
                 minSize=(30,30),
                 flags=cv.CASCADE_SCALE_IMAGE
-            )
+        )
 
-            self.send_faces(faces)
+        return faces
 
     def send_faces(self, faces):
         num_faces = len(faces)
@@ -85,9 +99,10 @@ class face_recog(subsystem):
             self.send_message(s, "pos_faces", faces)
 
         if num_faces:
-            relative_faces = self.calculate_relative_faces(faces)
+            f = self.calculate_relative_faces(faces)
+            relative_faces = ["offset", f[0], f[1]]
             for s in self.relative_subscribers:
-                self.send_message(s, "rel_faces", relative_faces)
+                self.send_message(s, "movement", relative_faces)
 
     def calculate_relative_faces(self, faces):
         face = max(faces, key=lambda f: (f[2]-f[0])*(f[3]-f[1]))

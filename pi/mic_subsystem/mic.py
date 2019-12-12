@@ -1,3 +1,4 @@
+import json
 import speech_recognition as sr
 from hcrutils.subsystem import subsystem
 from hcrutils.message import messagebody
@@ -63,7 +64,10 @@ class mic(subsystem):
             # recognized_words_wit = r.recognize_wit(audio, key="TOUXYZM2RACQGS5ZQRJZQUQ36YK7EQKP")
             # print("Wit thinks you said '" + recognized_words_wit + "'")
 
-            recognized_words = self.r.recognize_google(audio)
+            with open("/home/pi/Desktop/My First Project-37c47c2b7999.json") as f:
+                creds = json.dumps(json.load(f))
+
+            recognized_words = self.r.recognize_google_cloud(audio, creds)
             print("I think you said '" + recognized_words + "'")
 
             # only store keywords recognized from the input audio string for mapping

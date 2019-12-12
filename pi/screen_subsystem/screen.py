@@ -71,6 +71,7 @@ class EyeScreen(Screen):
         rpupil.target_add(x_change,y_change)
 
     def set_look(self,x_target,y_target): #give input as a value betewen 0 and 1 for relative positions
+
         x_target = round(x_target, 2)
         y_target = round(y_target, 2)
 
@@ -144,8 +145,8 @@ class MenuScreen(Screen):
 
 class VotingScreen(Screen):
     def pass_reaction(self,reaction):       
-        #placeholder for now, will change later
-        pass
+        print("reacted with:", reaction)
+        
     def to_eyes(self):
         self.manager.transition.direction='down'
         self.manager.current = 'eyes'
@@ -161,22 +162,22 @@ class RobotApp(App):
     @staticmethod
     def message_callback(ref, *largs):
         #Returns the normalized position of the largest face 
-        eye_pos = ref.op.get_messages("rel_faces")
+        eye_pos = ref.op.get_messages("movement")
         if eye_pos:
             p = eye_pos[0].message
-            ref.eyescreen.set_look(float(p[0]), float(p[1]))
+            ref.eyescreen.set_look(float(p[1]), float(p[2]))
 
         #Add more in the same way...
 
     def build(self):
-        sm = RobotScreens()
-        #self.eyescreen = EyeScreen(name='eyes')
-        #self.menuscreen = MenuScreen(name='menus')
-        #self.votingscreen=VotingScreen(name='voting')
+        sm = ScreenManager()
+        self.eyescreen = EyeScreen(name='eyes')
+        self.menuscreen = MenuScreen(name='menus')
+        self.votingscreen=VotingScreen(name='voting')
 
-        #sm.add_widget(self.eyescreen)
-        #sm.add_widget(self.menuscreen)
-        #sm.add_widget(self.votingscreen)
+        sm.add_widget(self.eyescreen)
+        sm.add_widget(self.menuscreen)
+        sm.add_widget(self.votingscreen)
 
         message_event = Clock.schedule_interval(
             partial(self.message_callback, self), 0.01)

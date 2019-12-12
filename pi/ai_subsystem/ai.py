@@ -73,12 +73,12 @@ class ai(subsystem):
         if num_faces and self.last_face_number != num_faces.message:
             self.last_face_number = num_faces.message
 
-        if questionToAsk.message > -1 and self.questionAnswered == True:
+        if questionToAsk and questionToAsk.message > -1 and self.questionAnswered == True:
             self.robot.flags.question = questionToAsk.message
             self.questionAnswered = False
 
         # Log question and answer in csv file
-        if self.robot.flags.processing[0] == True and answered.message == True:
+        if answered and self.robot.flags.processing[0] == True and answered.message == True:
             self.questionAnswered = True
             log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer.message)
             try:
@@ -91,6 +91,7 @@ class ai(subsystem):
             # Make robot sad for 5 cycles if results bad
             if answer < 3:
                 self.robot.flags.emotion = ("sad", 5)
+        print(self.robot.flags.currentState)
 
         # prepare movement information
         if self.robot.flags.currentState == "Idle":
