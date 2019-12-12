@@ -13,7 +13,9 @@ int pins[] = {14, 15, 9, 10, 11, 12};
 
 Stewart Platform = Stewart(pins);
 
-float position[2] = {0, 0};
+int speed_set = 20;
+
+float position[6] = {0, 0, 0, 0, 0, 0};
 
 int loop_no = 0;
 
@@ -113,11 +115,9 @@ void loop() {
 void movePattern(int pattern) {
 
   float pattern0[][6] = {{0,0,-8,0,0,0},{0,0,8,0,0,0}};
-  float pattern1[][6] = {{0,0,8,0,0,0},{0,0,-8,0,0,0}};
-  float pattern2[][6] = {{0,40,0,0,0,0},{0,-40,0,0,0,0}};
-  float pattern3[][6] = {{40,0,0,0,0,0},{-40,0,0,0,0,0}};
-
-  Serial.println("movePattern");
+  float pattern1[][6] = {{0,0,5,0,0,0},{0,0,-5,0,0,0}};
+  float pattern2[][6] = {{0,10,0,0,0,0},{0,-10,0,0,0,0}};
+  float pattern3[][6] = {{15,0,0,0,0,0},{-15,0,0,0,0,0}};
   
   switch (pattern) {
     case 0:
@@ -148,22 +148,32 @@ void iterateMoves(float moves[][6], int arraySize) {
   // Loops through moves Array and applies moves
 
   for (int i = 0; i < arraySize; i++) {
-    trans.x = moves[i][0];
-    trans.y = moves[i][1];
-    trans.z = moves[i][2];
-    rotat.x = moves[i][3];
-    rotat.y = moves[i][4];
-    rotat.z = moves[i][5];
+    for (int j = 0; j < speed_set; j++) {
+      trans.x = position[0] + (moves[i][0] - position[0]) * j / speed_set;
+      trans.y = position[1] + (moves[i][1] - position[1]) * j / speed_set;
+      trans.z = position[2] + (moves[i][2] - position[2]) * j / speed_set;
+      rotat.x = radians(position[3] + (moves[i][3] - position[3]) * j / speed_set);
+      rotat.y = radians(position[4] + (moves[i][4] - position[4]) * j / speed_set);
+      rotat.z = radians(position[5] + (moves[i][5] - position[5]) * j / speed_set);
     
-    Platform.applyTranslationAndRotation(trans, rotat);
-    delay(300);
+      Platform.applyTranslationAndRotation(trans, rotat);
+
+      if (Serial.available() > 0) {
+        for (int k = 0; k < 6; k++) {
+          position[k] = position[k] + (moves[i][k] - position[k]) * j / speed_set;
+        }
+        return;
+      }
+    }
+    for (int k = 0; k < 6; k++) {
+      position[k] = moves[i][k];
+    }
+    delay(200);
   }
 }
 
 void idle_state() {
   while (Serial.available() <= 0) {
-    movePattern(1);
-    movePattern(2);
     movePattern(3);
   }
   reset();
@@ -175,12 +185,12 @@ void applyOffset(float offset[]) {
   }
   static Vector trans;
   static Vector rotat;
-  float rz_adjust, rx_adjust, rz, rx;
-  rz_adjust = offset[0] * -24;
+  float rx_adjust, rz_adjust;
   rx_adjust = offset[1] * -8;
-  
-  rz_adjust = position[0] + rz_adjust;
-  rx_adjust = position[1] + rx_adjust;
+  rz_adjust = offset[0] * -24;
+
+  rx_adjust = position[3] + rx_adjust;
+  rz_adjust = position[5] + rz_adjust;
   
   if (rz_adjust > 24) {
     rz_adjust = 24;
@@ -202,25 +212,22 @@ void applyOffset(float offset[]) {
     trans.x = 0;
     trans.y = 0;
     trans.z = 0;
-    rotat.x = radians(position[1] + (rx_adjust - position[1]) * i / 35);
+    rotat.x = radians(position[3] + (rx_adjust - position[3]) * i / 35);
     rotat.y = 0;
-    rotat.z = radians(position[0] + (rz_adjust - position[0]) * i / 35);
+    rotat.z = radians(position[5] + (rz_adjust - position[5]) * i / 35);
     Platform.applyTranslationAndRotation(trans, rotat);
-    //Serial.print(i);
-    //Serial.println(" / 8 movement");
 
     if (Serial.available() > 0) {
-      position[0] = position[0] + (rz_adjust - position[0]) * i / 35;
-      position[1] = position[1] + (rx_adjust - position[1]) * i / 35;
+      position[3] = position[3] + (rx_adjust - position[3]) * i / 35;
+      position[5] = position[5] + (rz_adjust - position[5]) * i / 35;
       return;
     }
-    //delayMicroseconds(5000 / sqrt(offset[0] * offset[0] + offset[1] * offset[1]));
   }
 
-  position[0] = rz_adjust;
-  position[1] = rx_adjust;
-  Serial.println(position[0]);
-  Serial.println(position[1]);
+  position[5] = rz_adjust;
+  position[3] = rx_adjust;
+  Serial.println(position[5]);
+  Serial.println(position[3]);
   
   // Offset needs converting to xyz xyz
   Serial.println("Offset applied (conversion still needed)");
@@ -259,15 +266,18 @@ void changeColour(int colour) {
 void reset() {
   static Vector trans;
   static Vector rotat;
-  trans.x = 0;
-  trans.y = 0;
-  trans.z = 0;
-  rotat.x = 0;
-  rotat.y = 0;
-  rotat.z = 0;
-  position[0] = 0;
-  position[1] = 0;
-  Platform.applyTranslationAndRotation(trans, rotat);
+
+  for (int i = 1; i <= speed_set; i++) {
+    trans.x = position[0] - position[0] * i / speed_set;
+    trans.y = position[1] - position[1] * i / speed_set;
+    trans.z = position[2] - position[2] * i / speed_set;
+    rotat.x = radians(position[3] - position[3] * i / speed_set);
+    rotat.y = radians(position[4] - position[4] * i / speed_set);
+    rotat.z = radians(position[5] - position[5] * i / speed_set);
+    Platform.applyTranslationAndRotation(trans, rotat);
+  }
+  for (int i = 0; i < 6; i++) {
+    position[i] = 0;
+  }
   Serial.println("Reset completed");
-  delay(500);
 }
