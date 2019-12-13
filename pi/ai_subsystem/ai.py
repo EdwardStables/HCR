@@ -206,8 +206,12 @@ class ai(subsystem):
 
         # Send Question
         if (self.robot.flags.sendQuestion == [True, False]):
-                self.robot.flags.sendQuestion = [True, True]
-                self.send_message("screen", "askquestion", [])
+            self.robot.flags.sendQuestion = [True, True]
+            self.send_message("screen", "askquestion", [])
+
+        if self.robot.flags.currentState == "Idle" and self.robot.flags.sendQuestion != [False, False]:
+            self.robot.flags.sendQuestion = [False, False]
+            self.send_message("screen", "cancelQuestion", [])
                 
     def send_state_update(self, state):
         self.status = state

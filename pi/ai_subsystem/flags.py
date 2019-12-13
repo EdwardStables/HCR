@@ -18,7 +18,7 @@ class Flag(object):
         self.interactivity = 2 # 0 = no interactivity, 1 = no movement, 2 = all interactiity
         self.greetingLength = 3 # Greet for three cycles
         self.questionAnswered = True
-        self.questionTime = 8
+        self.questionTime = 2
         self.sendQuestion = [False, False]
         self.waiting = False
         self.stateLock = False
