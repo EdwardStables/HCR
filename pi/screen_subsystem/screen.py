@@ -180,9 +180,14 @@ class RobotApp(App):
             p = eye_lids[0].message
             ref.eyescreen.mood = float(p[0])
 
-        question = ref.op.get_messages("askquestion")
-        if question:
+        askquestion = ref.op.get_messages("askquestion")
+        if askquestion:
             ref.root.current = "voting"
+
+        cancelquestion = ref.op.get_messages("cancelQuestion")
+        if cancelquestion:
+            print("------cancel question-------")
+            ref.root.current = "eyes"
             
 
     def build(self):

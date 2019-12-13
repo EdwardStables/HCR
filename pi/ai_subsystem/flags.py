@@ -15,7 +15,7 @@ class Flag(object):
         self.timeout = 20 # Timeout and its length in cycles
         self.emotion = ("", 0) # Emotion and its persistence in cycles
         self.greeting = 0 
-        self.interactivity =1 # 0 = no interactivity, 1 = no movement, 2 = all interactiity
+        self.interactivity =2 # 0 = no interactivity, 1 = no movement, 2 = all interactiity
         self.greetingLength = 3 # Greet for three cycles
         self.questionAnswered = True
         self.questionTime = 2
