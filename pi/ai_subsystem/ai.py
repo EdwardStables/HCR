@@ -117,7 +117,7 @@ class ai(subsystem):
         if answer: #and self.robot.flags.processing[0] == True: #and answered.message == True:
             self.robot.flags.stateLock = False
             self.questionAnswered = True
-            log = "%s, %i, %i" % (datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), self.robot.flags.question, answer.message)
+            log = "%s, %i, %i\n" % (datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), answer.message, self.robot.flags.interactivity)
             print("Log:", log)
             with open("question_log.csv", 'a+') as f:
                 f.write(log)
