@@ -38,9 +38,10 @@ class ai(subsystem):
                 sleep(slp)
             t1 = time()
 
+
             # Get messages from other subsystems, do logic, then send messages to subsystems
-            emotion, num_faces, questionToAsk, answer, answered = self.check_messages()
-            colour_data, eye_data, movement_data = self.create_message_data(emotion, num_faces, questionToAsk, answer, answered)
+            emotion, num_faces, answer, answered = self.check_messages()
+            colour_data, eye_data, movement_data = self.create_message_data(emotion, num_faces, answer, answered)
             self.send_messages(colour_data, eye_data, movement_data)
 
             self.robot.event()
@@ -51,6 +52,7 @@ class ai(subsystem):
                 self.send_state_update(new_state)
 
             #self.robot.flags.printFlags()
+            
     
     def check_messages(self):
         """
@@ -66,11 +68,8 @@ class ai(subsystem):
 
         # get whether question has been answered (bool)
         answered = self.get_messages(ref="question_answered")
-        answered = answered[0] if len(answer) else []
+        answered = answered[0] if len(answered) else []
 
-        # get whether question has been answered (bool)
-        questionToAsk = self.get_messages(ref="question_to_ask")
-        questionToAsk = questionToAsk[0] if len(answer) else []
 
         # Receive Number of faces data
         num_faces = self.get_messages(ref="num_faces")
@@ -86,9 +85,9 @@ class ai(subsystem):
             if m.ref == "state_update_unsubscribe" and m.sender_id in self.state_subs:
                 self.state_subs.remove(m.sender_id)
 
-        return emotion, num_faces, questionToAsk, answer, answered
+        return emotion, num_faces, answer, answered
 
-    def create_message_data(self, emotion, num_faces, questionToAsk, answered, answer):
+    def create_message_data(self, emotion, num_faces, answer, answered):
         """
         Based on message information, work out what information needs to be sent to the other subsystems
         """
@@ -113,25 +112,23 @@ class ai(subsystem):
         if num_faces and self.last_face_number != num_faces.message:
             self.last_face_number = num_faces.message
 
-        if questionToAsk and questionToAsk.message > -1 and self.questionAnswered == True:
-            self.robot.flags.question = questionToAsk.message
-            self.questionAnswered = False
-
         # Log question and answer in csv file
         # If answered exists then the answer must have also been sent so we don't check for it's existence
-        if answered and self.robot.flags.processing[0] == True and answered.message == True:
+        if answer: #and self.robot.flags.processing[0] == True: #and answered.message == True:
+            self.robot.flags.stateLock = False
             self.questionAnswered = True
-            log = "%i, %i, %i" % (datetime.now(), self.robot.flags.question, answer.message)
-            try:
-                f = open("question_log.csv", 'w')
+            log = "%s, %i, %i\n" % (datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), answer.message, self.robot.flags.interactivity)
+            print("Log:", log)
+            with open("question_log.csv", 'a+') as f:
                 f.write(log)
-            finally:
                 f.close()
             # Tell ai subsystem that processing is done so it will go back to WatchingWaiting()
             self.robot.flags.processing = [False, False, -1]
             # Make robot sad for 5 cycles if results bad
-            if answer < 3:
-                self.robot.flags.emotion = ("sad", 5)
+            if answer.message < 3:
+                self.robot.flags.emotion = ("sad", 8)
+            else:
+                self.robot.flags.emotion = ("happy", 8)
         print(self.robot.flags.currentState)
 
         # prepare movement information
@@ -152,36 +149,37 @@ class ai(subsystem):
             self.movement = (self.movement[1], "following")
 
         # Prepare colour and eye information
-        if self.robot.flags.emotion == "happy":
-            colour_data = ["colour", "yellow"]
-            eye_data = ["eye_lids", "bottom_covered"]
+        if self.robot.flags.emotion[0] == "happy":
+            colour_data = ["colour", 0] # 0-3
+            eye_data = [-0.5] # 1 top maximum, -1 bottom maximum
             self.colour = (self.colour[1], "yellow")
             self.eyes = (self.eyes[1], "bottom_covered")
-        elif self.robot.flags.emotion == "sad":
-            colour_data = ["colour", "orange"]
-            eye_data = ["eye_lids", "top_covered"]
+        elif self.robot.flags.emotion[0] == "sad":
+            colour_data = ["colour", 1]
+            eye_data = [0.5]
             self.colour = (self.colour[1], "orange")
             self.eyes = (self.eyes[1], "top_covered")
-        elif self.robot.flags.emotion == "thinking":
-            colour_data = ["colour", "grey"]
-            eye_data = ["eye_lids", "look_to_corner"]
+        elif self.robot.flags.emotion[0] == "thinking":
+            colour_data = ["colour", 3]
+            eye_data = [0]
             self.colour = (self.colour[1], "grey")
             self.eyes = (self.eyes[1], "look_to_corner")
-        elif self.robot.flags.emotion == "content":
-            colour_data = ["colour", "blue"]
-            eye_data = ["eye_lids", "wide_open"]
+        elif self.robot.flags.emotion[0] == "content":
+            colour_data = ["colour", 2]
+            eye_data = [0]
             self.colour = (self.colour[1], "blue")
             self.eyes = (self.eyes[1], "wide_open")
         
         # Case for no interactivity
         if self.robot.flags.interactivity == 0:
-            eye_data = ["eye_lids", "no_movement"]
+            eye_data = [0] # 0
 
         return colour_data, eye_data, movement_data
 
     def send_messages(self, colour_data, eye_data, movement_data):
         print("colour:", colour_data)
         print("eye_data:", eye_data)
+        print("selfcolour", self.colour)
         print("movement:", movement_data)
         """
         Send messages to other subsystems from ai
@@ -191,27 +189,30 @@ class ai(subsystem):
             self.send_message("serial_interface", "movement", movement_data)
 
         if self.colour[0] != self.colour[1] and self.robot.flags.interactivity > 0:
-            self.send_message("serial_interface", "colour", colour_data)
+            self.send_message("serial_interface", "movement", colour_data)
 
         if self.eyes[0] != self.eyes[1] and self.robot.flags.interactivity > 0:
-            self.send_message("touch_screen", "eyes", eye_data)
-
+            self.send_message("screen", "eyes", eye_data)
+        
         # Sort out Greeting
         if self.robot.flags.greeting == 0:
             self.greeting = False
         elif self.robot.flags.greeting == self.greetingLength: # If we change the greeting length also change here
             self.greeting = True
             greetingMessage = ["initialise_greeting", self.greetingLength]
-            self.send_message("touch_screen", "greeting", greetingMessage)
+            self.send_message("screen", "greeting", greetingMessage)
             self.robot.flags.emotion = "happy",  self.greetingLength
             # Only make face happy, not movement
 
-        # Sort out question initialisation
-        if self.robot.flags.processing[1] == True:
-            question = ["show_question", self.robot.flags.question]
-            self.send_message("touch_screen", "question", question)
-            self.robot.flags.processing[1] = False 
+        # Send Question
+        if (self.robot.flags.sendQuestion == [True, False]):
+            self.robot.flags.sendQuestion = [True, True]
+            self.send_message("screen", "askquestion", [])
 
+        if self.robot.flags.currentState == "Idle" and self.robot.flags.sendQuestion != [False, False]:
+            self.robot.flags.sendQuestion = [False, False]
+            self.send_message("screen", "cancelQuestion", [])
+                
     def send_state_update(self, state):
         self.status = state
         for s in self.state_subs:

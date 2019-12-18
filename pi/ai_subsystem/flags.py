@@ -15,9 +15,13 @@ class Flag(object):
         self.timeout = 20 # Timeout and its length in cycles
         self.emotion = ("", 0) # Emotion and its persistence in cycles
         self.greeting = 0 
-        self.interactivity = 2 # 0 = no interactivity, 1 = no movement, 2 = all interactiity
+        self.interactivity =2 # 0 = no interactivity, 1 = no movement, 2 = all interactiity
         self.greetingLength = 3 # Greet for three cycles
         self.questionAnswered = True
+        self.questionTime = 2
+        self.sendQuestion = [False, False]
+        self.waiting = False
+        self.stateLock = False
     
     def printFlags(self):
         print("\ntimeout:", self.timeout,
@@ -31,6 +35,7 @@ class Flag(object):
               "\nemotion:", self.emotion[0], 
               "\nemotionLock:", self.emotion[1],
               "\ngreeting:", self.greeting,
-              "\ngreeting length:", self.greetingLength
+              "\ngreeting length:", self.greetingLength,
+              "\nQuestion Time, question", self.questionTime, self.sendQuestion
               )
 

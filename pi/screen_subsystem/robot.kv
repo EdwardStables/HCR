@@ -39,7 +39,8 @@
             id: votingbutton
             text: 'Go to vote screen'
             on_press:
-                root.manager.transition.direction = 'up'
+                #root.manager.transition = NoTransition()
+                #root.manager.transition.direction = 'up'
                 root.manager.current = 'voting'
             size_hint: (.2,.2)
             pos_hint:{"left":1,"top":1}
@@ -99,11 +100,11 @@
         size_hint_y: 0.2
         pos_hint:{'top':1}
         Label:
-            text: "How was your experience today? (1=Poor, 5=Excellent)"
+            text: "How was your experience at the cafe today? (1=Poor, 5=Excellent)"
             text_size: (self.width,None)
             halign: 'center'
             valign: 'center'
-            font_size: '50sp'
+            font_size: '20sp'
     BoxLayout:
         size_hint_y: 0.8
         pos_hint: {'bottom':1}

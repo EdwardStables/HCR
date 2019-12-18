@@ -32,11 +32,14 @@ class Idle(State):
         flag.processing = [False, False, -1]
         flag.listening = False
         flag.timeout = 5
+        flag.greeting = 0
         flag.lastNonTimeOut = Idle()
         if flag.emotion[1] == 0:
             flag.emotion = "content", flag.emotion[1]
         elif flag.emotion[1] > 0:
             flag.emotion = flag.emotion[0], (flag.emotion[1] - 1)
+        flag.sendQuestion = [False, False]
+        flag.questionTime = 8
 
     def event(self, event):
 
@@ -57,8 +60,13 @@ class TimingOut(State):
     """
     def run(self):
         self.state_string = "TimingOut"
-        flag.timeout = flag.timeout - 1
+        if flag.stateLock == False:
+            flag.timeout = flag.timeout - 1
         print("In timeout")
+        if flag.waiting == True:
+            flag.questionTime -= 1
+            if flag.questionTime <= 0 and flag.sendQuestion[1] == False:
+                flag.sendQuestion = [True, False]
 
     def event(self, event):
         
@@ -93,11 +101,12 @@ class WatchingGreeting(State):
             flag.emotion = "happy", flag.emotion[1]
         elif flag.emotion[1] > 0:
             flag.emotion = flag.emotion[0], (flag.emotion[1] - 1)
-        flag.greeting -= 1
+        if flag.person == True:
+            flag.greeting -= 1
 
     def event(self, event):
         
-        if flag.person == True and flag.greeting == 0:
+        if flag.person == True and flag.greeting <= 0:
             return WatchingWaiting()
         
         elif flag.person == False:
@@ -124,12 +133,16 @@ class WatchingWaiting(State):
             flag.emotion = "content", flag.emotion[1]
         elif flag.emotion[1] > 0:
             flag.emotion = flag.emotion[0], (flag.emotion[1] - 1)
+        if flag.questionTime <= 0 and flag.sendQuestion[1] == False:
+            flag.sendQuestion = [True, False]
+        flag.questionTime -= 1
+        flag.waiting = True
 
     def event(self, event):
         
         if flag.person == True and flag.question != -1:
             flag.processing == [True, True, flag.question]
-            # need to create function that actually initialises what question
+            flag.waiting = False
             return WatchingAskingQuestion()
         
         if flag.person == False:

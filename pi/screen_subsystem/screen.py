@@ -8,7 +8,7 @@ from kivy.app import App
 
 from kivy.uix.widget import Widget
 from kivy.uix.image import Image
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.slider import Slider
 from kivy.uix.button import Button
 
@@ -144,8 +144,15 @@ class MenuScreen(Screen):
     pass
 
 class VotingScreen(Screen):
+
+    def __init__(self, name, op):
+        self.op = op
+        super().__init__(name=name)
+
     def pass_reaction(self,reaction):       
         print("reacted with:", reaction)
+        self.op.send_message("ai", "question_answer", reaction)
+        
         
     def to_eyes(self):
         self.manager.transition.direction='down'
@@ -168,12 +175,26 @@ class RobotApp(App):
             ref.eyescreen.set_look(float(p[1]), float(p[2]))
 
         #Add more in the same way...
+        eye_lids = ref.op.get_messages("eyes")
+        if eye_lids:
+            p = eye_lids[0].message
+            ref.eyescreen.mood = float(p[0])
+
+        askquestion = ref.op.get_messages("askquestion")
+        if askquestion:
+            ref.root.current = "voting"
+
+        cancelquestion = ref.op.get_messages("cancelQuestion")
+        if cancelquestion:
+            print("------cancel question-------")
+            ref.root.current = "eyes"
+            
 
     def build(self):
-        sm = ScreenManager()
+        sm = ScreenManager(transition=NoTransition())
         self.eyescreen = EyeScreen(name='eyes')
         self.menuscreen = MenuScreen(name='menus')
-        self.votingscreen=VotingScreen(name='voting')
+        self.votingscreen=VotingScreen(name='voting', op=self.op)
 
         sm.add_widget(self.eyescreen)
         sm.add_widget(self.menuscreen)
